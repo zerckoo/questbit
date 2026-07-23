@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Username Modal</title>
+  <style>
+    /* Styling to match the dark, retro game UI */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0b1420;
+      font-family: 'Courier New', Courier, monospace;
+      color: #ffffff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Target the dialog modal */
+    dialog {
+      background-color: #1a304a;
+      border: 3px solid #2d4f7c;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.75);
+      padding: 30px;
+      width: 400px;
+      max-width: 90%;
+      box-sizing: border-box;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Style the native backdrop overlay */
+    dialog::backdrop {
+      background-color: rgba(6, 12, 20, 0.85);
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.5rem;
+      border-bottom: 2px solid #2d4f7c;
+      padding-bottom: 5px;
+      color: #9cbacf;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: #c0d3e1;
+    }
+
+    input[type="text"] {
+      background-color: #0b1420;
+      border: 2px solid #2d4f7c;
+      color: #fff;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #72a4d7;
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.8rem;
+      min-height: 1rem;
+      margin: -10px 0 0 0;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #7ac788;
+      color: #0b1420;
+      border: 2px solid #3d7e48;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.1s;
+    }
+
+    button:hover {
+      background-color: #92e0a0;
+    }
+
+    button:active {
+      background-color: #61a96e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- The Dialog Element -->
+  <dialog id="usernameModal">
+    <form method="dialog" id="usernameForm" class="modal-content">
+      <h2>Identify Yourself</h2>
+      
+      <label for="usernameInput">Enter a username to continue:</label>
+      <input 
+        type="text" 
+        id="usernameInput" 
+        placeholder="CHOOSE NAME..." 
+        autocomplete="off"
+        required
+      >
+      
+      <div class="error-msg" id="errorMsg"></div>
+      
+      <div class="actions">
+        <button type="submit" id="continueBtn">Continue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const modal = document.getElementById('usernameModal');
+    const form = document.getElementById('usernameForm');
+    const input = document.getElementById('usernameInput');
+    const errorMsg = document.getElementById('errorMsg');
+
+    // 1. Force open the modal as a modal dialog immediately on load
+    window.addEventListener('DOMContentLoaded', () => {
+      modal.showModal();
+    });
+
+    // 2. Prevent the Escape key from closing the dialog
+    modal.addEventListener('cancel', (event) => {
+      event.preventDefault();
+    });
+
+    // 3. Handle validation and form submission (Enter key or Button click)
+    form.addEventListener('submit', (event) => {
+      const username = input.value.trim();
+
+      if (username.length < 3) {
+        event.preventDefault(); // Stop the form/dialog from closing
+        errorMsg.textContent = "Name must be at least 3 characters.";
+        input.focus();
+      } else {
+        // Validation passed! The dialog closes natively via method="dialog"
+        errorMsg.textContent = "";
+        console.log("Username saved:", username);
+        // Do your next app actions here (e.g., loading the actual game layout)
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Side Quest | Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#203b60;--deep-ink:#0b1b31;--sky:#77cfef;--cream:#dce7f3;--orange:#91d7f0;--green:#76ca88;--red:#ff6b6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silkscreen",monospace}
+
+/* Navigation Bar */
+.navbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 34px;background:var(--ink);border-bottom:3px solid var(--deep-ink)}
+.nav-left,.profile-overview,.right-section{display:flex;align-items:center}
+.nav-left{gap:9px}.profile-overview{gap:9px;min-width:235px}.profile-avatar{width:46px;height:46px;background:linear-gradient(135deg,#d87850 0 38%,#f3ba63 38% 62%,#3d9a83 62%);border:2px solid var(--deep-ink)}
+.profile-info{flex:1}.username{color:var(--cream);font-weight:700}.level{margin:0 0 3px;font-size:12px;color:var(--sky)}.xp-bar{height:14px;overflow:hidden;background:var(--deep-ink);border:2px solid var(--deep-ink)}.xp-fill{width:100%;height:100%;background:var(--sky)}
+.nav-links{display:flex;gap:32px}.nav-links a{padding:4px 0;color:#fff;border-bottom:2px solid transparent;text-decoration:none;font-size:16px}.nav-links a:hover,.nav-links a.active{color:var(--sky);border-color:var(--sky)}
+.right-section{gap:18px}.qp{padding:10px 13px;color:var(--cream);background:#132b48;border:2px solid #071426}.qp[hidden],.user-avatar[hidden]{display:none}.signin-btn{padding:9px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:inherit}.user-avatar{width:40px;height:40px;color:var(--cream);background:#345275;border:2px solid var(--deep-ink);cursor:pointer;font:18px "Silkscreen",monospace}.profile-dropdown-wrap{position:relative}.profile-dropdown-wrap[hidden]{display:none}.profile-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.profile-dropdown.open{display:block}.dropdown-item{display:block;width:100%;padding:11px 16px;color:var(--cream);background:none;border:none;border-bottom:2px solid var(--deep-ink);border-radius:0;text-align:left;cursor:pointer;font:inherit;text-decoration:none;transition:background .12s,color .12s}.dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#304768;color:var(--sky)}.dropdown-danger{color:#ff6b6b}.dropdown-danger:hover{background:#3a1520;color:#ff6b6b}
+.menu-btn{display:none;color:var(--cream);background:none;border:0;cursor:pointer;font:20px "Silkscreen",monospace}.sidebar{position:fixed;z-index:5;top:0;left:-260px;width:250px;height:100%;padding-top:75px;background:var(--ink);border-right:3px solid var(--deep-ink);transition:.3s}.sidebar.active{left:0}.sidebar a{display:block;padding:16px 24px;color:var(--cream);border-bottom:2px solid #304768;text-decoration:none}.sidebar a:hover{color:var(--sky);background:#304768}.overlay{position:fixed;z-index:4;inset:0;display:none;background:rgba(10,27,49,.65)}.overlay.active{display:block}
+
+/* Layout */
+.admin-page{min-height:calc(100vh - 72px)}
+.admin-container{max-width:1400px;margin:0 auto;padding:40px 28px 70px}
+.admin-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:15px}
+.admin-container h1{color:#f1f6fa;font-size:clamp(28px,4vw,48px);letter-spacing:1px}
+.admin-intro{max-width:650px;color:#9bdcf4;font-size:15px;line-height:1.55;margin-bottom:35px}
+
+/* Stats Overview - Clickable */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:35px}
+.stat-card{padding:22px;background:#1b3455;border:3px solid var(--deep-ink);box-shadow:4px 4px 0 #071426;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s;user-select:none}
+.stat-card:hover{transform:translateY(-2px);box-shadow:6px 6px 0 #071426}
+.stat-card.active{border-color:var(--sky);box-shadow:0 0 0 2px var(--sky),4px 4px 0 #071426;background:#1e4a6e}
+.stat-card.active .stat-value{color:#fff}
+.stat-card.active .stat-label{color:var(--sky)}
+.stat-label{color:#abc7d9;font-size:12px;text-transform:uppercase;margin-bottom:8px}
+.stat-value{color:var(--sky);font-size:clamp(28px,4vw,36px);font-weight:700}
+
+/* Create Quest Collapsible */
+.create-quest-card{display:none;padding:28px;background:#173452;border:3px solid var(--deep-ink);box-shadow:6px 6px 0 #071426;margin-bottom:30px}
+.create-quest-card.open{display:block}
+.create-quest-card h2{color:#f1f6fa;font-size:20px;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid var(--sky)}
+
+/* Form */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.form-group{display:flex;flex-direction:column;gap:8px}
+.form-group.full-width{grid-column:span 2}
+.form-group label{color:#abc7d9;font-size:12px;text-transform:uppercase}
+.form-control{padding:12px 14px;color:var(--cream);background:#102642;border:2px solid var(--deep-ink);font:inherit;outline:none}
+.form-control:focus{border-color:var(--sky)}
+textarea.form-control{min-height:90px;resize:vertical}
+select.form-control{cursor:pointer}
+.form-control::placeholder{color:#5a8aaa}
+
+/* Toggle Switch */
+.toggle-group{display:flex;align-items:center;gap:12px;margin-top:10px}
+.checkbox-custom{width:22px;height:22px;accent-color:var(--sky);cursor:pointer}
+
+/* Image Input */
+.image-input-wrap{display:flex;align-items:center;position:relative}
+.image-input-wrap .form-control{flex:1;padding-right:50px}
+.image-browse-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--deep-ink);background:#1b3455;transition:background .15s}
+.image-browse-btn:hover{background:var(--sky)}
+.camera-icon{width:24px;height:24px;object-fit:contain;image-rendering:pixelated}
+.image-preview{margin-top:10px;border:2px solid var(--deep-ink);display:inline-block}
+.image-preview img{max-width:120px;max-height:120px;display:block;object-fit:cover}
+.image-drop-zone{border:2px dashed transparent;transition:border-color .2s}
+.image-drop-zone.drag-over{border-color:var(--sky);background:rgba(119,207,239,0.05)}
+
+/* Buttons */
+.btn-primary{padding:14px 22px;color:var(--deep-ink);background:var(--sky);border:3px solid var(--deep-ink);box-shadow:4px 4px 0 #071426;cursor:pointer;font:700 15px "Silkscreen",monospace;text-transform:uppercase;transition:transform .1s,background .1s}
+.btn-primary:hover{background:#91d7f0;transform:translateY(-2px)}
+.btn-secondary{padding:8px 12px;color:var(--cream);background:#102642;border:2px solid var(--deep-ink);cursor:pointer;font:700 11px "Silkscreen",monospace;transition:background .15s,color .15s}
+.btn-secondary:hover{background:var(--sky);color:var(--deep-ink)}
+.btn-danger{padding:8px 12px;color:#fff;background:var(--red);border:2px solid var(--deep-ink);cursor:pointer;font:700 11px "Silkscreen",monospace;transition:background .15s}
+.btn-danger:hover{background:#ff9999}
+.btn-create{padding:10px 18px;color:#092039;background:var(--sky);border:3px solid var(--deep-ink);box-shadow:4px 4px 0 #071426;cursor:pointer;font:700 13px "Silkscreen",monospace;text-transform:uppercase;transition:transform .1s,background .1s}
+.btn-create:hover{transform:translateY(-2px);background:#91d7f0}
+.btn-create.close-mode{background:var(--red);color:#fff;box-shadow:4px 4px 0 #7a1a1a}
+.btn-create.close-mode:hover{background:#ff9999}
+
+/* Quest Management */
+.panel-header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:20px;flex-wrap:wrap}
+.panel-header h2{color:#f1f6fa;font-size:22px}
+.search-container{margin-bottom:16px;width:100%}
+.search-bar{width:100%;max-width:400px;padding:12px 16px;color:var(--cream);background:#132b48;border:2px solid var(--deep-ink);font:inherit;outline:none;box-shadow:3px 3px 0 #071426}
+.search-bar::placeholder{color:#5a8aaa}
+.search-bar:focus{border-color:var(--sky)}
+
+.filter-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-select{padding:10px 12px;color:var(--cream);background:#1b3455;border:2px solid var(--deep-ink);font:700 11px "Silkscreen",monospace;cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--sky)}
+
+/* Quest Table */
+.quest-table{width:100%;border-collapse:separate;border-spacing:0 6px}
+.quest-table th{padding:12px 14px;color:#9bdcf4;background:#173452;border:2px solid var(--deep-ink);font-size:11px;text-align:left;text-transform:uppercase}
+.quest-table td{padding:14px;color:var(--cream);background:#1b3455;border:2px solid var(--deep-ink);font-size:13px}
+.quest-table tr:hover td{background:#244467}
+.quest-table .id-cell{color:var(--sky);font-weight:700;text-align:center;width:50px}
+.quest-table .title-cell{color:#f1f6fa;font-weight:700}
+.quest-table .xp-cell{color:var(--sky)}
+.quest-table .biome-cell{color:#9bdcf4}
+.quest-table .difficulty-cell{text-transform:capitalize}
+.quest-table .reward-cell{color:var(--green)}
+
+.badge{display:inline-block;padding:4px 8px;font-size:10px;font-weight:700;text-transform:uppercase;border:2px solid var(--deep-ink)}
+.badge-published{color:#092039;background:var(--green)}
+.badge-draft{color:#092039;background:var(--orange)}
+
+.action-buttons{display:flex;gap:5px}
+
+.empty-state{padding:60px 20px;color:#5a8aaa;background:#173452;border:2px solid var(--deep-ink);text-align:center;font-size:16px}
+
+/* Edit Modal */
+.modal-overlay{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}
+.modal-overlay[hidden]{display:none}
+.modal-card{width:min(100%,620px);max-height:85vh;overflow:auto;padding:24px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-header h2{color:#f1f6fa;font-size:20px}
+.modal-close{padding:0 2px 4px;color:var(--cream);background:none;border:0;border-bottom:2px solid var(--sky);cursor:pointer;font:18px "Silkscreen",monospace;transition:color .15s,border-color .15s}
+.modal-close:hover{color:var(--red);border-bottom-color:var(--red)}
+.form-actions{display:flex;gap:12px;margin-top:24px;justify-content:flex-end}
+
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;color:#092039;background:var(--sky);border:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;z-index:30;opacity:0;transform:translateY(10px);transition:all .3s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{background:var(--red);color:#fff}
+
+/* Admin Guard */
+.admin-guard-overlay{position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:rgba(10,27,49,0.95);text-align:center}
+.admin-guard-card{max-width:480px;padding:32px;background:#173452;border:3px solid var(--deep-ink);box-shadow:8px 8px 0 #071426}
+.admin-guard-card h2{color:var(--red);font-size:24px;margin-bottom:12px}
+.admin-guard-card p{color:#abc7d9;line-height:1.5;margin-bottom:20px}
+
+@media(max-width:900px){
+  .nav-links{display:none}.profile-overview{min-width:auto}.menu-btn{display:block}
+  .form-grid{grid-template-columns:1fr}.form-group.full-width{grid-column:span 1}
+  .stats-grid{grid-template-columns:1fr}
+  .quest-table th:nth-child(n+5),.quest-table td:nth-child(n+5){display:none}
+}
+@media(max-width:600px){
+  .navbar{min-height:64px;padding:8px 12px}.admin-container{padding:25px 15px 50px}
+  .admin-header{flex-direction:column;align-items:flex-start}
+  .quest-table th:nth-child(n+4),.quest-table td:nth-child(n+4){display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- Mobile Sidebar -->
+<div class="sidebar" id="sidebar">
+  <a href="main.html">[H] Home</a>
+  <a href="quests.html">[Q] Quests</a>
+  <a href="#">[W] World</a>
+  <a href="#">[R] Rankings</a>
+  <a href="#">[C] Community</a>
+  <a href="admindashboard.html" class="active">[A] Admin</a>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-left">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">&#9776;</button>
+    <div class="profile-overview">
+      <div class="profile-avatar"></div>
+      <div class="profile-info">
+        <div class="username" id="adminUser">ADMINISTRATOR</div>
+        <div class="level">GUILD MASTER</div>
+        <div class="xp-bar"><div class="xp-fill"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="main.html">Home</a>
+    <a href="quests.html">Quests</a>
+    <a href="#">World</a>
+    <a href="#">Rankings</a>
+    <a href="admindashboard.html" class="active">Admin</a>
+  </div>
+  <div class="right-section">
+    <div class="qp" id="qpBalance" hidden>&#9679; 2,450 GP</div>
+    <div class="profile-dropdown-wrap" id="profileDropdownWrap" hidden>
+      <button class="user-avatar" id="signoutBtn" type="button" title="Profile" aria-label="Profile menu"></button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="#" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+        <a href="admin.html" class="dropdown-item" id="dropdownAdmin">&#9876; Admin Dashboard</a>
+        <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
+      </div>
+    </div>
+    <button class="signin-btn" id="signinBtn" type="button">Sign In</button>
+  </div>
+</nav>
+
+<main class="admin-page">
+  <div class="admin-container">
+    
+    <div class="admin-header">
+      <h1>ADMIN DASHBOARD</h1>
+      <button class="btn-create" id="toggleCreateBtn" type="button">+ CREATE QUEST</button>
+    </div>
+    <p class="admin-intro">Control panel for managing quests, drafting new adventures, and configuring game content.</p>
+
+    <!-- Stats Overview - Clickable Filters -->
+    <section class="stats-grid">
+      <div class="stat-card active" id="statTotalCard" data-filter="all">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Total Quests</div>
+      </div>
+      <div class="stat-card" id="statPublishedCard" data-filter="published">
+        <div class="stat-value" id="statPublished">0</div>
+        <div class="stat-label">Published Quests</div>
+      </div>
+      <div class="stat-card" id="statDraftsCard" data-filter="draft">
+        <div class="stat-value" id="statDrafts">0</div>
+        <div class="stat-label">Draft Quests</div>
+      </div>
+    </section>
+
+    <!-- Create Quest Collapsible Form -->
+    <div class="create-quest-card" id="createQuestCard">
+      <h2 id="formTitle">+ CREATE NEW QUEST</h2>
+      <form id="createForm">
+        <input type="hidden" id="editQuestId" value="">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="createTitle">Quest Title</label>
+            <input type="text" id="createTitle" class="form-control" placeholder="e.g. Cleansing the Ancient Ruins" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="createDesc">Description</label>
+            <textarea id="createDesc" class="form-control" placeholder="Describe the objectives and storyline..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="createXP">XP Reward</label>
+            <input type="number" id="createXP" class="form-control" placeholder="100" min="0" required>
+          </div>
+
+          <div class="form-group">
+            <label for="createReward">Reward (Coins)</label>
+            <input type="number" id="createReward" class="form-control" placeholder="e.g. 500" min="0" required>
+          </div>
+
+          <div class="form-group">
+            <label for="createDiff">Difficulty</label>
+            <select id="createDiff" class="form-control" required>
+              <option value="">Select difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="epic">Epic</option>
+              <option value="legendary">Legendary</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="createCat">Category</label>
+            <select id="createCat" class="form-control" required>
+              <option value="">Select category</option>
+              <option value="exploration">Exploration</option>
+              <option value="combat">Combat</option>
+              <option value="crafting">Crafting</option>
+              <option value="social">Social</option>
+              <option value="puzzle">Puzzle</option>
+              <option value="collection">Collection</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="createBiome">Biome</label>
+            <select id="createBiome" class="form-control" required>
+              <option value="">Select biome</option>
+              <option value="forest">Forest</option>
+              <option value="beach">Beach</option>
+              <option value="sea">Sea</option>
+              <option value="mountains">Mountains</option>
+              <option value="city">City</option>
+              <option value="snow">Snow</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="createBudget">Budget / Cost</label>
+            <select id="createBudget" class="form-control">
+              <option value="free">Free</option>
+              <option value="low">Low Cost</option>
+              <option value="medium">Medium Cost</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="createTime">Estimated Time</label>
+            <input type="text" id="createTime" class="form-control" placeholder="e.g. 30 mins, 2 hours">
+          </div>
+
+          <div class="form-group">
+            <label for="createImage">Image (URL or File)</label>
+            <div class="image-input-wrap" id="imageDropZone">
+              <input type="text" id="createImage" class="form-control" placeholder="Paste image URL here">
+              <label for="createImageFile" class="image-browse-btn"><img src="Icons/camera.jfif" alt="Upload" class="camera-icon"></label>
+              <input type="file" id="createImageFile" accept="image/*" hidden>
+            </div>
+            <div class="image-preview" id="imagePreview" style="display:none;"><img id="previewImg" src="" alt="Preview"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="createVerify">Verification Type</label>
+            <select id="createVerify" class="form-control" required>
+              <option value="">Select verification</option>
+              <option value="manual">Manual Approval</option>
+              <option value="photo">Photo Upload</option>
+              <option value="gps">GPS Location Check</option>
+              <option value="auto">Auto Complete</option>
+              <option value="honor">Honor System</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <div class="toggle-group">
+              <input type="checkbox" id="isPublished" class="checkbox-custom" checked>
+              <label for="isPublished" style="cursor:pointer;color:#fff;">Publish Quest Immediately</label>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="margin-top:10px;display:flex;gap:10px;">
+            <button type="submit" class="btn-primary" id="saveQuestBtn">SAVE QUEST</button>
+            <button type="button" class="btn-secondary" id="cancelCreateBtn" style="display:none;">CANCEL EDIT</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Quest Management -->
+    <div class="panel-header">
+      <h2>QUEST MANAGEMENT</h2>
+    </div>
+
+    <div class="search-container">
+      <input type="text" id="searchBar" class="search-bar" placeholder="Search quests by title or ID...">
+    </div>
+
+    <div class="filter-row">
+      <select class="filter-select" id="filterBiome"><option value="all">All Biomes</option><option value="forest">Forest</option><option value="beach">Beach</option><option value="sea">Sea</option><option value="mountains">Mountains</option><option value="city">City</option><option value="snow">Snow</option><option value="general">General</option></select>
+      <select class="filter-select" id="filterDiff"><option value="all">All Difficulties</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option><option value="epic">Epic</option><option value="legendary">Legendary</option></select>
+      <select class="filter-select" id="filterStatus"><option value="all">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+    </div>
+
+    <table class="quest-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>XP</th>
+          <th>Reward</th>
+          <th>Biome</th>
+          <th>Difficulty</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="questTableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" hidden>No quests found matching your criteria.</div>
+    <div id="adminQuestsContainer"></div>
+
+  </div>
+</main>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal" hidden>
+  <div class="modal-card">
+    <div class="modal-header"><h2>EDIT QUEST</h2><button class="modal-close" id="closeEditModal" type="button">&times;</button></div>
+    <form id="editForm">
+      <input type="hidden" id="editId">
+      <div class="form-grid">
+        <div class="form-group full-width"><label for="editTitle">Title</label><input type="text" id="editTitle" class="form-control" required></div>
+        <div class="form-group full-width"><label for="editDesc">Description</label><textarea id="editDesc" class="form-control" required></textarea></div>
+        <div class="form-group"><label for="editXP">XP Reward</label><input type="number" id="editXP" class="form-control" min="0" required></div>
+        <div class="form-group"><label for="editReward">Reward (Coins)</label><input type="number" id="editReward" class="form-control" min="0"></div>
+        <div class="form-group"><label for="editDiff">Difficulty</label><select id="editDiff" class="form-control" required><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option><option value="epic">Epic</option><option value="legendary">Legendary</option></select></div>
+        <div class="form-group"><label for="editCat">Category</label><select id="editCat" class="form-control" required><option value="exploration">Exploration</option><option value="combat">Combat</option><option value="crafting">Crafting</option><option value="social">Social</option><option value="puzzle">Puzzle</option><option value="collection">Collection</option></select></div>
+        <div class="form-group"><label for="editBiome">Biome</label><select id="editBiome" class="form-control" required><option value="forest">Forest</option><option value="beach">Beach</option><option value="sea">Sea</option><option value="mountains">Mountains</option><option value="city">City</option><option value="snow">Snow</option><option value="general">General</option></select></div>
+        <div class="form-group"><label for="editBudget">Budget</label><select id="editBudget" class="form-control"><option value="free">Free</option><option value="low">Low Cost</option><option value="medium">Medium Cost</option><option value="premium">Premium</option></select></div>
+        <div class="form-group"><label for="editTime">Estimated Time</label><input type="text" id="editTime" class="form-control"></div>
+        <div class="form-group"><label for="editImage">Image URL</label><input type="text" id="editImage" class="form-control"></div>
+        <div class="form-group"><label for="editVerify">Verification Type</label><select id="editVerify" class="form-control" required><option value="manual">Manual Approval</option><option value="photo">Photo Upload</option><option value="gps">GPS Location Check</option><option value="auto">Auto Complete</option><option value="honor">Honor System</option></select></div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" id="cancelEdit">Cancel</button>
+        <button type="submit" class="btn-primary">SAVE CHANGES</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Guard -->
+<div class="admin-guard-overlay" id="adminGuard" style="display:none;">
+  <div class="admin-guard-card">
+    <h2>RESTRICTED AREA</h2>
+    <p>You must be logged in as an authorized Guild Master (Admin) to access this dashboard.</p>
+    <button class="btn-primary" id="guardSignInBtn">Sign In As Admin</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Sidebar Toggle
+const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn');
+function closeMenu(){sidebar.classList.remove('active');overlay.classList.remove('active')}
+if(menuBtn) menuBtn.onclick=()=>{sidebar.classList.toggle('active');overlay.classList.toggle('active')};
+if(overlay) overlay.onclick=closeMenu;
+
+// Mock Quest Data
+window.quests = [];
+var quests = window.quests;
+
+window.nextId = 1;
+
+let activeStatusFilter = 'all';
+let editingId = null;
+
+// --- Create Quest Toggle ---
+const toggleCreateBtn = document.getElementById('toggleCreateBtn');
+const createQuestCard = document.getElementById('createQuestCard');
+const cancelCreateBtn = document.getElementById('cancelCreateBtn');
+const formTitle = document.getElementById('formTitle');
+
+function toggleCreateForm(show) {
+  const isOpen = show !== undefined ? show : !createQuestCard.classList.contains('open');
+  createQuestCard.classList.toggle('open', isOpen);
+  toggleCreateBtn.textContent = isOpen ? '✖ CLOSE FORM' : '+ CREATE QUEST';
+  toggleCreateBtn.classList.toggle('close-mode', isOpen);
+  if (isOpen && editingId === null) {
+    formTitle.textContent = '+ CREATE NEW QUEST';
+    document.getElementById('editQuestId').value = '';
+    document.getElementById('createForm').reset();
+    document.getElementById('isPublished').checked = true;
+    cancelCreateBtn.style.display = 'none';
+    createQuestCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+toggleCreateBtn.onclick = () => toggleCreateForm();
+cancelCreateBtn.onclick = () => { editingId = null; toggleCreateForm(false); };
+
+// --- Image File Handling ---
+const createImageFile = document.getElementById('createImageFile');
+const createImageInput = document.getElementById('createImage');
+const imageDropZone = document.getElementById('imageDropZone');
+const imagePreview = document.getElementById('imagePreview');
+const previewImg = document.getElementById('previewImg');
+let createImageDataURL = '';
+
+function handleImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    createImageDataURL = ev.target.result;
+    createImageInput.value = file.name;
+    previewImg.src = ev.target.result;
+    imagePreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+createImageFile.addEventListener('change', e => handleImageFile(e.target.files[0]));
+
+imageDropZone.addEventListener('dragover', e => { e.preventDefault(); imageDropZone.classList.add('drag-over'); });
+imageDropZone.addEventListener('dragleave', () => imageDropZone.classList.remove('drag-over'));
+imageDropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  imageDropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleImageFile(e.dataTransfer.files[0]);
+});
+
+createImageInput.addEventListener('input', () => {
+  if (createImageInput.value && !createImageInput.value.includes(' ')) {
+    previewImg.src = createImageInput.value;
+    imagePreview.style.display = 'block';
+  } else {
+    imagePreview.style.display = 'none';
+  }
+});
+
+// --- Stat Card Filtering ---
+const statCards = document.querySelectorAll('.stat-card');
+statCards.forEach(card => {
+  card.addEventListener('click', () => {
+    const filter = card.dataset.filter;
+    activeStatusFilter = filter;
+    statCards.forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    document.getElementById('filterStatus').value = filter;
+    renderQuests();
+  });
+});
+
+// --- Filter Listeners ---
+document.getElementById('filterStatus').addEventListener('change', e => {
+  activeStatusFilter = e.target.value;
+  statCards.forEach(c => c.classList.remove('active'));
+  const target = document.querySelector(`.stat-card[data-filter="${activeStatusFilter}"]`);
+  if (target) target.classList.add('active');
+  renderQuests();
+});
+document.getElementById('filterBiome').addEventListener('change', renderQuests);
+document.getElementById('filterDiff').addEventListener('change', renderQuests);
+document.getElementById('searchBar').addEventListener('input', renderQuests);
+
+// --- Render Quests ---
+function getStats() {
+  const p = quests.filter(q => q.status === 'published').length;
+  return { total: quests.length, published: p, drafts: quests.length - p };
+}
+
+function renderQuests() {
+  const s = getStats();
+  document.getElementById('statTotal').textContent = s.total;
+  document.getElementById('statPublished').textContent = s.published;
+  document.getElementById('statDrafts').textContent = s.drafts;
+
+  const search = document.getElementById('searchBar').value.toLowerCase();
+  const fBiome = document.getElementById('filterBiome').value;
+  const fDiff = document.getElementById('filterDiff').value;
+
+  let filtered = quests.filter(q => {
+    if (search && !q.title.toLowerCase().includes(search) && !String(q.id).includes(search)) return false;
+    if (activeStatusFilter !== 'all' && q.status !== activeStatusFilter) return false;
+    if (fBiome !== 'all' && q.biome !== fBiome) return false;
+    if (fDiff !== 'all' && q.difficulty !== fDiff) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('questTableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+
+  tbody.innerHTML = filtered.map(q => `
+    <tr>
+      <td class="id-cell">${q.id}</td>
+      <td class="title-cell">${esc(q.title)}</td>
+      <td class="xp-cell">${q.xp} XP</td>
+      <td class="reward-cell">${q.reward || 0} Coins</td>
+      <td class="biome-cell">${esc(q.biome)}</td>
+      <td class="difficulty-cell">${esc(q.difficulty)}</td>
+      <td><span class="badge badge-${q.status}">${q.status}</span></td>
+      <td class="action-buttons">
+        <button class="btn-secondary" onclick="openEdit(${q.id})">Edit</button>
+        <button class="btn-secondary" onclick="togglePublish(${q.id})" style="color:${q.status==='published'?'var(--orange)':'var(--green)'}">${q.status==='published'?'Unpublish':'Publish'}</button>
+        <button class="btn-danger" onclick="deleteQuest(${q.id})">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+function togglePublish(id) {
+  const q = quests.find(x => x.id === id);
+  if (!q || !q.firestoreId) return;
+  window.togglePublishInDB(q.firestoreId, q.status);
+  showToast('Toggling publish...');
+}
+
+function deleteQuest(id) {
+  if (!confirm('Delete this quest?')) return;
+  const q = quests.find(x => x.id === id);
+  if (!q || !q.firestoreId) return;
+  window.deleteQuestFromDB(q.firestoreId);
+  showToast('Deleting quest...', 'error');
+}
+
+// --- Create / Edit Form Submit ---
+document.getElementById('createForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const imageData = createImageDataURL || document.getElementById('createImage').value;
+  const questData = {
+    title: document.getElementById('createTitle').value,
+    desc: document.getElementById('createDesc').value,
+    xp: parseInt(document.getElementById('createXP').value),
+    reward: parseInt(document.getElementById('createReward').value) || 0,
+    difficulty: document.getElementById('createDiff').value,
+    category: document.getElementById('createCat').value,
+    biome: document.getElementById('createBiome').value,
+    budget: document.getElementById('createBudget').value,
+    time: document.getElementById('createTime').value,
+    image: imageData,
+    verify: document.getElementById('createVerify').value,
+    status: document.getElementById('isPublished').checked ? 'published' : 'draft'
+  };
+
+  if (editingId !== null) {
+    const q = quests.find(x => x.id === editingId);
+    if (!q || !q.firestoreId) return;
+    window.updateQuestInDB(q.firestoreId, questData);
+    showToast('Updating quest...');
+  } else {
+    window.createQuestInDB(questData);
+    showToast('Creating quest...');
+  }
+
+  e.target.reset();
+  createImageDataURL = '';
+  imagePreview.style.display = 'none';
+  document.getElementById('isPublished').checked = true;
+  toggleCreateForm(false);
+});
+
+// --- Close form when clicking outside ---
+document.addEventListener('click', e => {
+  if (!createQuestCard.classList.contains('open')) return;
+  if (createQuestCard.contains(e.target)) return;
+  if (e.target === toggleCreateBtn || toggleCreateBtn.contains(e.target)) return;
+  const insideUI = e.target.closest('.navbar') || e.target.closest('.sidebar') || e.target.closest('.overlay') || e.target.closest('.modal-overlay') || e.target.closest('.admin-guard-overlay');
+  if (!insideUI) toggleCreateForm(false);
+});
+
+// --- Edit Modal ---
+function openEdit(id) {
+  const q = quests.find(x => x.id === id);
+  if (!q) return;
+  document.getElementById('editId').value = q.id;
+  document.getElementById('editTitle').value = q.title;
+  document.getElementById('editDesc').value = q.desc;
+  document.getElementById('editXP').value = q.xp;
+  document.getElementById('editReward').value = q.reward || '';
+  document.getElementById('editDiff').value = q.difficulty;
+  document.getElementById('editCat').value = q.category || 'exploration';
+  document.getElementById('editBiome').value = q.biome;
+  document.getElementById('editBudget').value = q.budget || 'free';
+  document.getElementById('editTime').value = q.time || '';
+  document.getElementById('editImage').value = q.image || '';
+  document.getElementById('editVerify').value = q.verify || 'manual';
+  document.getElementById('editModal').hidden = false;
+}
+
+document.getElementById('closeEditModal').onclick = () => document.getElementById('editModal').hidden = true;
+document.getElementById('cancelEdit').onclick = () => document.getElementById('editModal').hidden = true;
+document.getElementById('editModal').onclick = e => { if (e.target === e.currentTarget) e.currentTarget.hidden = true; };
+
+document.getElementById('editForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('editId').value);
+  const q = quests.find(x => x.id === id);
+  if (!q || !q.firestoreId) return;
+  const questData = {
+    title: document.getElementById('editTitle').value,
+    desc: document.getElementById('editDesc').value,
+    xp: parseInt(document.getElementById('editXP').value),
+    reward: parseInt(document.getElementById('editReward').value) || 0,
+    difficulty: document.getElementById('editDiff').value,
+    category: document.getElementById('editCat').value,
+    biome: document.getElementById('editBiome').value,
+    budget: document.getElementById('editBudget').value,
+    time: document.getElementById('editTime').value,
+    image: document.getElementById('editImage').value,
+    verify: document.getElementById('editVerify').value,
+    status: q.status
+  };
+  window.updateQuestInDB(q.firestoreId, questData);
+  document.getElementById('editModal').hidden = true;
+  showToast('Updating quest...');
+});
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'error' ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+// Initial Render
+renderQuests();
+
+// Admin Guard — check role when auth.js determines it
+var adminGuard = document.getElementById('adminGuard');
+var adminPage = document.querySelector('.admin-page');
+
+window.onAuthReady = function(role) {
+  if (role !== 'admin') {
+    if (adminGuard) adminGuard.style.display = '';
+    if (adminPage) adminPage.style.display = 'none';
+  } else {
+    if (adminGuard) adminGuard.style.display = 'none';
+    if (adminPage) adminPage.style.display = '';
+  }
+};
+
+// Fallback: if auth.js already loaded before this script ran
+setTimeout(function() {
+  if (window.userRole && window.userRole !== 'admin') {
+    if (adminGuard) adminGuard.style.display = '';
+    if (adminPage) adminPage.style.display = 'none';
+  }
+}, 3000);
+
+// Guard sign-in button triggers the actual sign-in
+var guardSignInBtn = document.getElementById('guardSignInBtn');
+if (guardSignInBtn) {
+  guardSignInBtn.addEventListener('click', function() {
+    document.getElementById('signinBtn').click();
+  });
+}
+</script>
+
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/admin.js"></script>
+
+</body>
+</html>

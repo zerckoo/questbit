@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Side Quest | Quests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#203b60;--deep-ink:#0b1b31;--sky:#77cfef;--cream:#dce7f3;--orange:#91d7f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silkscreen",monospace}
+.navbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 34px;background:var(--ink);border-bottom:3px solid var(--deep-ink)}
+.nav-left,.profile-overview,.right-section{display:flex;align-items:center}
+.nav-left{gap:9px}.profile-overview{gap:9px;min-width:235px}.profile-avatar{width:46px;height:46px;background:linear-gradient(135deg,#d87850 0 38%,#f3ba63 38% 62%,#3d9a83 62%);border:2px solid var(--deep-ink)}
+.profile-info{flex:1}.username{color:var(--cream);font-weight:700}.level{margin:0 0 3px;font-size:12px}.xp-bar{height:14px;overflow:hidden;background:var(--deep-ink);border:2px solid var(--deep-ink)}.xp-fill{width:68%;height:100%;background:var(--sky)}
+.nav-links{display:flex;gap:32px}.nav-links a{padding:4px 0;color:#fff;border-bottom:2px solid transparent;text-decoration:none;font-size:16px}.nav-links a:hover,.nav-links a.active{color:var(--sky);border-color:var(--sky)}
+.right-section{gap:18px}.qp{padding:10px 13px;color:var(--cream);background:#132b48;border:2px solid #071426}.qp[hidden],.user-avatar[hidden]{display:none}.signin-btn{padding:9px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:inherit}.user-avatar{width:40px;height:40px;color:var(--cream);background:#345275;border:2px solid var(--deep-ink);cursor:pointer;font:18px "Silkscreen",monospace}.profile-dropdown-wrap{position:relative}.profile-dropdown-wrap[hidden]{display:none}.profile-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.profile-dropdown.open{display:block}.dropdown-item{display:block;width:100%;padding:11px 16px;color:var(--cream);background:none;border:none;border-bottom:2px solid var(--deep-ink);border-radius:0;text-align:left;cursor:pointer;font:inherit;text-decoration:none;transition:background .12s,color .12s}.dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#304768;color:var(--sky)}.dropdown-danger{color:#ff6b6b}.dropdown-danger:hover{background:#3a1520;color:#ff6b6b}
+.menu-btn{display:none;color:var(--cream);background:none;border:0;cursor:pointer;font:20px "Silkscreen",monospace}.sidebar{position:fixed;z-index:5;top:0;left:-260px;width:250px;height:100%;padding-top:75px;background:var(--ink);border-right:3px solid var(--deep-ink);transition:.3s}.sidebar.active{left:0}.sidebar a{display:block;padding:16px 24px;color:var(--cream);border-bottom:2px solid #304d70;text-decoration:none}.sidebar a:hover{color:var(--sky);background:#304768}.overlay{position:fixed;z-index:4;inset:0;display:none;background:rgba(10,27,49,.65)}.overlay.active{display:block}
+.quests-page{min-height:calc(100vh - 72px)}
+.quest-board{max-width:1260px;margin:0 auto;padding:48px 28px 70px}.board-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}.quest-board h1{color:#f1f6fa;font-size:clamp(32px,5vw,52px);letter-spacing:1px}
+
+/* Prominent "MY QUESTS" Button */
+.my-quests-btn {
+  padding: 15px 26px;
+  color: #102642;
+  background: var(--sky);
+  border: 3px solid var(--deep-ink);
+  box-shadow: 4px 4px 0 var(--deep-ink);
+  cursor: pointer;
+  font: 700 15px "Silkscreen", monospace;
+  letter-spacing: 0.5px;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.my-quests-btn:hover {
+  background: #93e0fa;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 var(--deep-ink);
+}
+.my-quests-btn:active {
+  transform: translateY(2px);
+  box-shadow: 2px 2px 0 var(--deep-ink);
+}
+
+.board-intro{max-width:650px;margin-top:15px;color:#9bdcf4;font-size:15px;line-height:1.55}.lucky-panel{margin:46px 0 42px}.lucky-panel h2,.filter-group h2{margin-bottom:16px;color:#f1f6fa;font-size:20px}.roll-quest-btn{display:inline-flex;align-items:center;gap:13px;padding:15px 21px;color:#102642;background:var(--sky);border:3px solid #08182b;box-shadow:4px 4px 0 #08182b;cursor:pointer;font:700 16px "Silkscreen",monospace}.quest-die{display:block;width:22px;height:22px;object-fit:contain;animation:none}.roll-quest-btn:hover .quest-die,.roll-quest-btn:focus-visible .quest-die{animation:die-roll .65s steps(4,end) infinite}@keyframes die-roll{0%,32%{transform:rotate(0deg)}40%,64%{transform:rotate(90deg)}72%,94%{transform:rotate(180deg)}100%{transform:rotate(270deg)}}.filter-group{margin-top:30px}
+
+/* Expandable Square Biome Tabs */
+.filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 64px;
+  height: 64px;
+  padding: 0 10px;
+  color: var(--cream);
+  background: #1b3455;
+  border: 2px solid var(--deep-ink);
+  box-shadow: 3px 3px 0 var(--deep-ink);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.35s cubic-bezier(0.25, 1, 0.5, 1), background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.filter-tab img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.biome-name {
+  opacity: 0;
+  margin-left: 0;
+  font: 700 13px "Silkscreen", monospace;
+  color: inherit;
+  transition: opacity 0.25s ease 0.05s, margin-left 0.25s ease;
+  pointer-events: none;
+}
+.filter-tab:hover, .filter-tab:focus-visible {
+  width: 175px;
+  color: var(--sky);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--deep-ink);
+}
+.filter-tab:hover .biome-name, .filter-tab:focus-visible .biome-name {
+  opacity: 1;
+  margin-left: 12px;
+}
+.filter-tab.active {
+  color: #092039;
+  background: var(--sky);
+}
+
+/* Cost Tabs Styling Fixed */
+.cost-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cost-tab {
+  padding: 12px 16px;
+  color: var(--cream);
+  background: #1b3455;
+  border: 2px solid var(--deep-ink);
+  box-shadow: 3px 3px 0 var(--deep-ink);
+  cursor: pointer;
+  font: 700 13px "Silkscreen", monospace;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.cost-tab:hover, .cost-tab:focus-visible {
+  color: var(--sky);
+  background: #244467;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--deep-ink);
+}
+.cost-tab.active {
+  color: #092039;
+  background: var(--sky);
+  box-shadow: 3px 3px 0 var(--deep-ink);
+}
+.cost-tab.active:hover {
+  background: #93e0fa;
+  color: #092039;
+}
+
+.quest-results{margin-top:43px}.quest-results-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:16px}.quest-results-heading h2{color:#f1f6fa;font-size:20px}.results-controls{display:flex;align-items:center;gap:13px}.quest-count{color:var(--sky);font-size:13px}.layout-switch{display:flex;gap:5px}.layout-btn{padding:6px 8px;color:var(--cream);background:#1b3455;border:2px solid var(--deep-ink);cursor:pointer;font:700 11px "Silkscreen",monospace}.layout-btn.active{color:#092039;background:var(--sky)}.quest-list{display:grid;gap:9px}
+
+/* List View Item Styling */
+.quest-list-item{
+  position:relative;
+  display:grid;
+  grid-template-columns: 44px minmax(130px,240px) minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  width:100%;
+  padding:10px 14px;
+  color:var(--cream);
+  background:#1b3455;
+  border:2px solid var(--deep-ink);
+  cursor:pointer;
+  text-align:left;
+  font:inherit;
+  transition:background .15s,transform .15s;
+}
+.quest-list-item:hover,.quest-list-item:focus-visible{background:#244467;transform:translateX(3px)}
+
+.quest-list-image{width:42px;height:42px;object-fit:cover;border:2px solid #0b1b31;image-rendering:pixelated}
+.quest-list-title{color:#f1f6fa;font-weight:700;font-size:14px}
+.quest-list-summary{overflow:hidden;color:#abc7d9;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.quest-list-meta{color:var(--sky);font-size:11px;white-space:nowrap}
+
+/* Hover Description Tooltip Box */
+.quest-tooltip{position:absolute;z-index:10;bottom:calc(100% + 8px);left:55px;display:none;max-width:350px;padding:10px 13px;color:#e6f4fb;background:#102b49;border:2px solid #08182b;border-radius:6px;box-shadow:3px 3px 0 #08182b;font-size:12px;line-height:1.45;pointer-events:none}
+.quest-list-item:hover .quest-tooltip,.quest-list-item:focus-visible .quest-tooltip{display:block}
+
+.saved-star-badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 22px;
+  height: 22px;
+  z-index: 5;
+  pointer-events: none;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
+/* Vertical / Square Grid View Cards */
+.quest-list.grid-view{
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+.quest-list.grid-view .quest-list-item{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  aspect-ratio: 3 / 4;
+  padding: 16px;
+  gap: 12px;
+  background: #1c3454;
+  box-shadow: 4px 4px 0 #08182b;
+}
+.quest-list.grid-view .quest-list-item:hover{transform:translateY(-4px)}
+.quest-list.grid-view .quest-list-image{
+  order: 2;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  margin: 0;
+  object-fit: cover;
+  border: 2px solid #08182b;
+}
+.quest-list.grid-view .quest-list-title{
+  order: 1;
+  font-size: 15px;
+  line-height: 1.3;
+  margin: 0;
+}
+.quest-list.grid-view .quest-list-summary{
+  order: 3;
+  flex: 1;
+  white-space: normal;
+  line-height: 1.4;
+  font-size: 12px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+.quest-list.grid-view .quest-list-meta{
+  order: 4;
+  padding-top: 10px;
+  border-top: 2px solid #304d70;
+}
+.quest-list.grid-view .quest-tooltip{display:none!important}
+
+.quest-detail-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.quest-detail-modal[hidden]{display:none}.quest-detail-card{display:flex;flex-direction:column;width:min(100%,680px);max-height:90vh;overflow:auto;padding:22px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426}.quest-detail-top{display:grid;grid-template-columns:210px 1fr;gap:24px}.quest-detail-image{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #08182b;image-rendering:pixelated}.quest-detail-title{color:#f1f6fa;font-size:27px;line-height:1.35;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky)}.quest-detail-meta{display:flex;flex-wrap:wrap;gap:15px;margin:13px 0 19px;color:var(--sky);font-size:13px;line-height:1.6}.detail-meta-item{padding-bottom:2px;border-bottom:2px solid var(--sky)}.detail-cost{color:#f1f6fa}.detail-biome{color:#9bdcf4}.quest-detail-description{color:#c4d9e6;font-size:15px;line-height:1.6}
+
+.quest-detail-actions{display:flex;justify-content:space-between;gap:12px;margin-top:27px}
+
+/* Unified 8-Bit Button Styles */
+.quest-detail-actions button {
+  padding: 12px 18px;
+  border: 2px solid #08182b;
+  box-shadow: 3px 3px 0 #08182b;
+  cursor: pointer;
+  font: 700 13px "Silkscreen", monospace;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-green, .accept-quest {
+  color: #0b1b31 !important;
+  background: #76ca88 !important;
+  border: 2px solid #08182b;
+  box-shadow: 3px 3px 0 #08182b;
+  cursor: pointer;
+  font: 700 13px "Silkscreen", monospace;
+  padding: 12px 18px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-green:hover:not(:disabled), .accept-quest:hover:not(:disabled) {
+  background: #91e2a2 !important;
+  transform: translateY(-2px);
+}
+
+.btn-red {
+  color: #ffffff !important;
+  background: #d93838 !important;
+  border: 2px solid #08182b;
+  box-shadow: 3px 3px 0 #08182b;
+  cursor: pointer;
+  font: 700 13px "Silkscreen", monospace;
+  padding: 12px 18px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-red:hover:not(:disabled) {
+  background: #ff4d4d !important;
+  transform: translateY(-2px);
+}
+
+.save-quest {
+  color: #ffffff !important;
+  background: #2b6cb0 !important;
+}
+.save-quest:hover:not(:disabled) {
+  background: #3182ce !important;
+  transform: translateY(-2px);
+}
+
+.quest-detail-actions button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.close-detail{
+  align-self:flex-end;
+  margin:-6px -6px 12px 0;
+  color:var(--cream);
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  font:700 28px/1 "Silkscreen",monospace;
+  padding:0 4px 2px;
+  border-bottom:3px solid var(--sky);
+  transition:color .15s, border-color .15s, transform .15s;
+}
+.close-detail:hover,.close-detail:focus-visible{
+  color:#ff6b6b;
+  border-bottom-color:#ff6b6b;
+  transform:scale(1.1);
+}
+
+/* Bottom Right Toast Notification */
+.toast-popup {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  padding: 14px 20px;
+  background: #102b49;
+  color: var(--sky);
+  border: 3px solid #0b1b31;
+  box-shadow: 5px 5px 0 #071426;
+  font: 700 13px "Silkscreen", monospace;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px);
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+  pointer-events: none;
+}
+.toast-popup.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* My Quests Modal */
+.quest-collection-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.quest-collection-modal[hidden]{display:none}
+.quest-collection-card{
+  position:relative;
+  width:min(100%,820px);
+  max-height:88vh;
+  overflow:auto;
+  padding:26px;
+  background:#203f67;
+  border:3px solid #0b1b31;
+  box-shadow:7px 7px 0 #071426;
+}
+.quest-collection-card .close-detail{position:absolute;top:22px;right:17px}
+
+.collection-title{
+  color:#f1f6fa;
+  font-size:24px;
+  display:inline-block;
+  padding-bottom:4px;
+  border-bottom:2px solid var(--sky);
+}
+
+.collection-tabs{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}
+.collection-tab{
+  padding:10px 14px;
+  color:var(--cream);
+  background:#173452;
+  border:2px solid var(--deep-ink);
+  cursor:pointer;
+  font:700 12px "Silkscreen",monospace;
+  transition: background 0.15s, color 0.15s;
+}
+.collection-tab.active{color:#092039;background:var(--sky)}
+.collection-list{display:grid;gap:9px}
+
+.collection-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  padding:13px;
+  color:var(--cream);
+  background:#173452;
+  border:2px solid var(--deep-ink);
+  font-size:13px;
+  cursor:pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.collection-item:hover {
+  background: #244970;
+  transform: translateX(3px);
+}
+.collection-item span:last-child{color:var(--sky);white-space:nowrap}
+.empty-collection{padding:22px;color:#b8d0e2;background:#173452;border:2px solid var(--deep-ink);font-size:13px;text-align:center}
+
+@media(max-width:900px){.nav-links{display:none}.profile-overview{min-width:auto}.menu-btn{display:block}.right-section{gap:10px}.qp{display:block}}
+@media(max-width:600px){.navbar{min-height:64px;gap:8px;padding:8px 12px}.profile-avatar{width:38px;height:38px}.profile-info{display:none}.menu-btn{margin-right:8px}.right-section{gap:7px}.qp{padding:8px 7px;font-size:11px;white-space:nowrap}.signin-btn{padding:8px 9px;font-size:12px}.user-avatar{width:34px;height:34px;font-size:15px}.quest-board{padding:35px 15px 50px}.board-intro{font-size:14px}.lucky-panel{margin:36px 0}.lucky-panel h2,.filter-group h2{font-size:18px}.cost-tabs{display:grid;grid-template-columns:repeat(2,1fr)}.cost-tab:last-child{grid-column:span 2}.cost-tab{font-size:12px;padding:12px 8px}}
+@media(max-width:600px){.quest-results-heading h2{font-size:18px}.quest-list-item{grid-template-columns:38px minmax(0,1fr);gap:10px}.quest-list-image{width:38px;height:38px}.quest-list-title{font-size:13px}.quest-list-summary{grid-column:2/span 2;font-size:11px}.quest-list-meta{display:none}.quest-tooltip{display:none!important}.quest-detail-top{grid-template-columns:1fr}.quest-detail-image{max-width:210px}.quest-detail-title{font-size:22px}.quest-detail-description{font-size:14px}}
+@media(max-width:900px){.quest-list.grid-view{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.results-controls{gap:8px}.quest-count{font-size:11px}.quest-list.grid-view{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+  <a href="main.html">[H] Home</a>
+  <a href="quests.html">[Q] Quests</a>
+  <a href="#">[W] World</a>
+  <a href="#">[R] Rankings</a>
+  <a href="#">[C] Community</a>
+</div>
+<nav class="navbar">
+  <div class="nav-left">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">&#9776;</button>
+    <div class="profile-overview">
+      <div class="profile-avatar"></div>
+      <div class="profile-info">
+        <div class="username">LVL 1 WAYFARER</div>
+        <div class="level">ADVENTURER</div>
+        <div class="xp-bar"><div class="xp-fill"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="main.html">Home</a>
+    <a class="active" href="quests.html">Quests</a>
+    <a href="#">World</a>
+    <a href="#">Rankings</a>
+    <a href="#">Community</a>
+  </div>
+  <div class="right-section">
+    <div class="qp" id="qpBalance" hidden>&#9679; 0 GP</div>
+    <div class="profile-dropdown-wrap" id="profileDropdownWrap" hidden>
+      <button class="user-avatar" id="signoutBtn" type="button" title="Profile" aria-label="Profile menu"></button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="#" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+        <a href="admin.html" class="dropdown-item" id="dropdownAdmin" style="display: none;">&#9876; Admin Dashboard</a>
+        <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
+      </div>
+    </div>
+    <button class="signin-btn" id="signinBtn" type="button">Sign In</button>
+  </div>
+</nav>
+
+<main class="quests-page">
+  <section class="quest-board" aria-labelledby="quest-board-title">
+    <div class="board-heading">
+      <h1 id="quest-board-title">THE QUEST BOARD</h1>
+      <button class="my-quests-btn" id="myQuestsBtn" type="button">MY QUESTS</button>
+    </div>
+    <p class="board-intro">Every quest is a chance to explore, make progress, and earn experience for your next adventure.</p>
+
+    <div class="lucky-panel">
+      <h2>FEELING LUCKY?</h2>
+      <button class="roll-quest-btn" id="rollQuestBtn" type="button">
+        <img class="quest-die" src="Icons/Dice.jfif" alt="">
+        ROLL A QUEST
+      </button>
+    </div>
+
+    <!-- Biome Filter Tabs -->
+    <section class="filter-group" aria-labelledby="biome-filter-heading">
+      <h2 id="biome-filter-heading">FILTER BY BIOME</h2>
+      <div class="filter-tabs" role="group" aria-label="Biome filter">
+        <button class="filter-tab" type="button" data-biome="beach" title="Beach">
+          <img src="Icons/beach.png" alt="Beach">
+          <span class="biome-name">Beach</span>
+        </button>
+        <button class="filter-tab" type="button" data-biome="sea" title="Sea">
+          <img src="Icons/sea.png" alt="Sea">
+          <span class="biome-name">Sea</span>
+        </button>
+        <button class="filter-tab" type="button" data-biome="forest" title="Forest">
+          <img src="Icons/Tree.png" alt="Forest">
+          <span class="biome-name">Forest</span>
+        </button>
+        <button class="filter-tab" type="button" data-biome="mountains" title="Mountains">
+          <img src="Icons/mountain.png" alt="Mountains">
+          <span class="biome-name">Mountains</span>
+        </button>
+        <button class="filter-tab" type="button" data-biome="city" title="City">
+          <img src="Icons/city.png" alt="City">
+          <span class="biome-name">City</span>
+        </button>
+        <button class="filter-tab" type="button" data-biome="snow" title="Snow">
+          <img src="Icons/Snowflake.png" alt="Snow">
+          <span class="biome-name">Snow</span>
+        </button>
+        <button class="filter-tab active" type="button" data-biome="all" title="All Biomes">
+          <img src="Images/Moonlit%20Sky%208%20bit.jfif" alt="All">
+          <span class="biome-name">All Biomes</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Cost Filter Tabs -->
+    <section class="filter-group" aria-labelledby="cost-filter-heading">
+      <h2 id="cost-filter-heading">FILTER BY COST</h2>
+      <div class="cost-tabs" role="group" aria-label="Cost filter">
+        <button class="cost-tab" type="button" data-cost="free">Free</button>
+        <button class="cost-tab" type="button" data-cost="low">Low Cost</button>
+        <button class="cost-tab" type="button" data-cost="medium">Medium Cost</button>
+        <button class="cost-tab" type="button" data-cost="premium">Premium</button>
+        <button class="cost-tab active" type="button" data-cost="all">All</button>
+      </div>
+    </section>
+
+    <section class="quest-results" aria-labelledby="available-quests-heading">
+      <div class="quest-results-heading">
+        <h2 id="available-quests-heading">AVAILABLE QUESTS</h2>
+        <div class="results-controls">
+          <span class="quest-count" id="questCount">0 QUESTS</span>
+          <div class="layout-switch" role="group" aria-label="Quest layout">
+            <button class="layout-btn active" type="button" data-layout="list">LIST</button>
+            <button class="layout-btn" type="button" data-layout="grid">GRID</button>
+          </div>
+        </div>
+      </div>
+      <div class="quest-list" id="questList">LOADING QUESTS FROM FIRESTORE...</div>
+    </section>
+  </section>
+</main>
+
+<!-- Detailed Quest Modal (Public Board) -->
+<div class="quest-detail-modal" id="questDetailModal" hidden>
+  <div class="quest-detail-card">
+    <button class="close-detail" id="closeDetailBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <div class="quest-detail-top">
+      <img class="quest-detail-image" id="modalImage" src="Icons/Tree.png" alt="Quest Image">
+      <div>
+        <h2 class="quest-detail-title" id="modalTitle">Quest Title</h2>
+        <div class="quest-detail-meta">
+          <span class="detail-meta-item" id="modalXP">0 XP</span>
+          <span class="detail-meta-item detail-biome" id="modalBiome">Biome: --</span>
+          <span class="detail-meta-item detail-cost" id="modalCost">Cost: --</span>
+        </div>
+        <p class="quest-detail-description" id="modalDesc">No description available.</p>
+      </div>
+    </div>
+    <div class="quest-detail-actions">
+      <button class="save-quest" id="saveQuestBtn" type="button">★ SAVE QUEST</button>
+      <button class="accept-quest" id="acceptQuestBtn" type="button">✔ ACCEPT QUEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quest Accepted Guidance Pop-Up Modal -->
+<div class="quest-detail-modal" id="questAcceptedModal" hidden>
+  <div class="quest-detail-card" style="max-width: 500px; text-align: center;">
+    <button class="close-detail" id="closeAcceptedModalBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color: var(--sky); color: #f1f6fa; margin-bottom: 16px;">QUEST ACCEPTED!</h2>
+    <p style="color: #c4d9e6; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
+      Your quest has been added to your journal! You can view, track, and complete your active quests anytime by clicking the <strong style="color: var(--sky);">"MY QUESTS"</strong> button at the top right of the board.
+    </p>
+    <div style="display: flex; justify-content: center;">
+      <button class="btn-green" id="ackAcceptedBtn" type="button">GOT IT!</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Quests Journal Modal (ACCEPTED -> SAVED -> PENDING -> COMPLETED) -->
+<div class="quest-collection-modal" id="myQuestsModal" hidden>
+  <div class="quest-collection-card">
+    <button class="close-detail" id="closeCollectionBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="collection-title">MY QUEST JOURNAL</h2>
+    <div class="collection-tabs">
+      <button class="collection-tab active" data-tab="active" onclick="switchJournalTab('active')" type="button">ACCEPTED QUESTS</button>
+      <button class="collection-tab" data-tab="saved" onclick="switchJournalTab('saved')" type="button">SAVED QUESTS</button>
+      <button class="collection-tab" data-tab="pending" onclick="switchJournalTab('pending')" type="button">PENDING QUESTS</button>
+      <button class="collection-tab" data-tab="completed" onclick="switchJournalTab('completed')" type="button">COMPLETED QUESTS</button>
+    </div>
+    <div class="collection-list" id="collectionList"></div>
+  </div>
+</div>
+
+<!-- My Quests Sub-Detail Modal -->
+<div class="quest-detail-modal" id="myQuestDetailModal" hidden>
+  <div class="quest-detail-card">
+    <button class="close-detail" id="closeMyDetailBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <div class="quest-detail-top">
+      <img class="quest-detail-image" id="myModalImage" src="Icons/Tree.png" alt="Quest Image">
+      <div>
+        <h2 class="quest-detail-title" id="myModalTitle">Quest Title</h2>
+        <div class="quest-detail-meta">
+          <span class="detail-meta-item" id="myModalXP">+0 XP</span>
+          <span class="detail-meta-item detail-biome" id="myModalBiome">Biome: --</span>
+          <span class="detail-meta-item detail-cost" id="myModalCost">Cost: --</span>
+        </div>
+        <p class="quest-detail-description" id="myModalDesc">No description available.</p>
+      </div>
+    </div>
+    <div class="quest-detail-actions" id="myModalActions"></div>
+  </div>
+</div>
+
+<!-- Cancel Quest Warning Pop-up Modal -->
+<div class="quest-detail-modal" id="cancelConfirmModal" hidden>
+  <div class="quest-detail-card" style="max-width: 500px; text-align: center;">
+    <button class="close-detail" id="closeCancelModalBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color: #ff6b6b; color: #ff6b6b; margin-bottom: 16px;">CANCEL QUEST?</h2>
+    <p style="color: #c4d9e6; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
+      Are you sure you want to cancel this quest?
+    </p>
+    <div style="display: flex; justify-content: center; gap: 14px;">
+      <button class="btn-red" id="confirmCancelBtn" type="button">CONFIRM CANCEL</button>
+      <button class="btn-green" id="abortCancelBtn" type="button">KEEP QUEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom-Right Toast Notification -->
+<div class="toast-popup" id="toastPopup">Quest notification!</div>
+
+<!-- JS Core Imports -->
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/quests.js"></script>
+
+<script>
+// UI Nav Controls & Modals Toggle
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const menuBtn = document.getElementById('menuBtn');
+
+function closeMenu() {
+  if (sidebar) sidebar.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
+}
+
+if (menuBtn) {
+  menuBtn.onclick = () => {
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+  };
+}
+if (overlay) overlay.onclick = closeMenu;
+
+// Layout Toggle (List / Grid) with LocalStorage Memory
+const layoutButtons = document.querySelectorAll('.layout-btn');
+const questList = document.getElementById('questList');
+const savedLayout = localStorage.getItem('preferredLayout') || 'list';
+
+function applyLayout(layout) {
+  layoutButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.layout === layout);
+  });
+  if (questList) {
+    questList.classList.toggle('grid-view', layout === 'grid');
+  }
+}
+
+// Restore user's saved layout view preference on load
+applyLayout(savedLayout);
+
+layoutButtons.forEach(button => {
+  button.onclick = () => {
+    const layout = button.dataset.layout || 'list';
+    localStorage.setItem('preferredLayout', layout);
+    applyLayout(layout);
+  };
+});
+
+// Modal Close Triggers
+const closeDetailBtn = document.getElementById('closeDetailBtn');
+const questDetailModal = document.getElementById('questDetailModal');
+if (closeDetailBtn) closeDetailBtn.onclick = () => questDetailModal.hidden = true;
+
+const closeMyDetailBtn = document.getElementById('closeMyDetailBtn');
+const myQuestDetailModal = document.getElementById('myQuestDetailModal');
+if (closeMyDetailBtn) closeMyDetailBtn.onclick = () => myQuestDetailModal.hidden = true;
+
+const myQuestsBtn = document.getElementById('myQuestsBtn');
+const myQuestsModal = document.getElementById('myQuestsModal');
+const closeCollectionBtn = document.getElementById('closeCollectionBtn');
+
+if (myQuestsBtn) {
+  myQuestsBtn.onclick = () => {
+    myQuestsModal.hidden = false;
+    if (typeof window.switchJournalTab === 'function') {
+      window.switchJournalTab('active');
+    }
+  };
+}
+if (closeCollectionBtn) closeCollectionBtn.onclick = () => myQuestsModal.hidden = true;
+
+const closeAcceptedModalBtn = document.getElementById('closeAcceptedModalBtn');
+const ackAcceptedBtn = document.getElementById('ackAcceptedBtn');
+const questAcceptedModal = document.getElementById('questAcceptedModal');
+
+if (closeAcceptedModalBtn) closeAcceptedModalBtn.onclick = () => questAcceptedModal.hidden = true;
+if (ackAcceptedBtn) ackAcceptedBtn.onclick = () => questAcceptedModal.hidden = true;
+
+const closeCancelModalBtn = document.getElementById('closeCancelModalBtn');
+const abortCancelBtn = document.getElementById('abortCancelBtn');
+const cancelConfirmModal = document.getElementById('cancelConfirmModal');
+
+if (closeCancelModalBtn) closeCancelModalBtn.onclick = () => cancelConfirmModal.hidden = true;
+if (abortCancelBtn) abortCancelBtn.onclick = () => cancelConfirmModal.hidden = true;
+
+// Filter Tab Handlers with Active Class State Updating
+const filterTabs = document.querySelectorAll('.filter-tab');
+const savedBiome = localStorage.getItem('selectedBiome') || 'all';
+
+function setBiomeActive(selectedBiome) {
+  filterTabs.forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.biome === selectedBiome);
+  });
+}
+setBiomeActive(savedBiome);
+
+filterTabs.forEach(tab => {
+  tab.onclick = () => {
+    const biome = tab.dataset.biome || 'all';
+    localStorage.setItem('selectedBiome', biome);
+    setBiomeActive(biome);
+    if (typeof window.applyQuestFilters === 'function') window.applyQuestFilters();
+  };
+});
+
+const costTabs = document.querySelectorAll('.cost-tab');
+const savedCost = localStorage.getItem('selectedCost') || 'all';
+
+function setCostActive(selectedCost) {
+  costTabs.forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.cost === selectedCost);
+  });
+}
+setCostActive(savedCost);
+
+costTabs.forEach(tab => {
+  tab.onclick = () => {
+    const cost = tab.dataset.cost || 'all';
+    localStorage.setItem('selectedCost', cost);
+    setCostActive(cost);
+    if (typeof window.applyQuestFilters === 'function') window.applyQuestFilters();
+  };
+});
+</script>
+
+</body>
+</html>
