@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuestBit | Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="Icons/Backpack.jpg">
+<style>
+:root{--ink:#203b60;--deep-ink:#0b1b31;--sky:#77cfef;--cream:#dce7f3;--orange:#91d7f0;--green:#76ca88;--red:#ff6b6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silkscreen",monospace}
+
+/* Nav */
+.navbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 34px;background:var(--ink);border-bottom:3px solid var(--deep-ink)}
+.nav-left,.right-section{display:flex;align-items:center}
+.nav-left{gap:9px}.profile-overview{display:flex;align-items:center;gap:9px;min-width:235px;position:relative;cursor:pointer;padding:6px 8px;border:2px solid transparent;transition:border-color .15s,background .15s}.profile-overview:hover{border-color:#304d70;background:rgba(48,77,104,.15)}.profile-avatar{width:46px;height:46px;background:linear-gradient(135deg,#d87850 0 38%,#f3ba63 38% 62%,#3d9a83 62%);background-size:cover;background-position:center;border:2px solid var(--deep-ink)}
+.profile-info{flex:1}.username{color:var(--cream);font-weight:700}.level{margin:0 0 3px;font-size:12px;color:var(--sky)}.xp-bar{width:100%;height:18px;overflow:hidden;background:var(--deep-ink);border:2px solid var(--deep-ink)}.xp-fill{width:100%;height:100%;background:var(--sky)}.xp-row{display:flex;align-items:center;gap:8px}.level-badge{color:var(--sky);font-size:11px;font-weight:700;white-space:nowrap}
+.nav-links{display:flex;gap:32px}.nav-links a{padding:4px 0;color:#fff;border-bottom:2px solid transparent;text-decoration:none;font-size:16px}.nav-links a:hover,.nav-links a.active{color:var(--sky);border-color:var(--sky)}
+.right-section{gap:18px}.qp{padding:10px 13px;color:var(--cream);background:#132b48;border:2px solid #071426}.qp[hidden],.user-avatar[hidden]{display:none}.signin-btn{padding:9px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:inherit}.user-avatar{width:40px;height:40px;color:var(--cream);background:#345275;border:2px solid var(--deep-ink);cursor:pointer;font:18px "Silkscreen",monospace}.profile-dropdown-wrap{position:relative}.profile-dropdown-wrap[hidden]{display:none}.profile-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.profile-dropdown.open{display:block}.dropdown-item{display:block;width:100%;padding:11px 16px;color:var(--cream);background:none;border:none;border-bottom:2px solid var(--deep-ink);border-radius:0;text-align:left;cursor:pointer;font:inherit;text-decoration:none;transition:background .12s,color .12s}.dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#304768;color:var(--sky)}.dropdown-danger{color:#ff6b6b}.dropdown-danger:hover{background:#3a1520;color:#ff6b6b}.left-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.left-dropdown.open{display:block}
+.menu-btn{display:none;color:var(--cream);background:none;border:0;cursor:pointer;font:20px "Silkscreen",monospace}.sidebar{position:fixed;z-index:5;top:0;left:-260px;width:250px;height:100%;padding-top:75px;background:var(--ink);border-right:3px solid var(--deep-ink);transition:.3s}.sidebar.active{left:0}.sidebar a{display:block;padding:16px 24px;color:var(--cream);border-bottom:2px solid #304d70;text-decoration:none}.sidebar a:hover,.sidebar a.active{color:var(--sky);background:#304768}.overlay{position:fixed;z-index:4;inset:0;display:none;background:rgba(10,27,49,.65)}.overlay.active{display:block}
+
+/* Layout */
+.settings-page{min-height:calc(100vh - 72px)}
+.settings-wrap{max-width:960px;margin:0 auto;padding:40px 28px 70px}
+.settings-wrap h1{color:#f1f6fa;font-size:clamp(28px,4vw,48px);letter-spacing:1px;margin-bottom:28px}
+.settings-layout{display:flex;gap:24px;align-items:flex-start}
+.settings-sidebar{flex:0 0 220px;background:#173452;border:3px solid var(--deep-ink);box-shadow:4px 4px 0 #071426;overflow:hidden}
+.settings-tab-btn{display:block;width:100%;padding:14px 18px;color:#8aabc4;background:none;border:none;border-bottom:2px solid #1a3050;cursor:pointer;font:700 13px "Silkscreen",monospace;text-align:left;transition:background .12s,color .12s}
+.settings-tab-btn:last-child{border-bottom:none}
+.settings-tab-btn:hover{background:#1b3455;color:var(--cream)}
+.settings-tab-btn.active{background:#1b3455;color:var(--sky);border-left:3px solid var(--sky)}
+.settings-tab-btn.disabled{opacity:.4;cursor:not-allowed}
+.settings-tab-btn .tab-icon{margin-right:8px}
+.settings-content{flex:1;min-width:0}
+.settings-panel{display:none}
+.settings-panel.active{display:block}
+
+/* Panel cards */
+.panel-card{padding:28px;background:#173452;border:3px solid var(--deep-ink);box-shadow:4px 4px 0 #071426;margin-bottom:20px}
+.panel-card h2{color:var(--sky);font-size:18px;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid var(--deep-ink)}
+
+/* Settings rows */
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #1a3050}
+.settings-row:last-child{border-bottom:none}
+.settings-label{flex:1}.settings-label strong{color:#f1f6fa;display:block;margin-bottom:4px}.settings-label span{color:#7a9bb5;font-size:12px}
+.settings-value{color:var(--sky);font-weight:700;text-align:right}
+
+/* Form */
+.form-group{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.form-group label{color:#abc7d9;font-size:12px;text-transform:uppercase}
+.form-control{padding:12px 14px;color:var(--cream);background:#102642;border:2px solid var(--deep-ink);font:inherit;outline:none}
+.form-control:focus{border-color:var(--sky)}
+.form-control::placeholder{color:#5a8aaa}
+
+/* Buttons */
+.btn-primary{padding:14px 22px;color:var(--deep-ink);background:var(--sky);border:3px solid var(--deep-ink);box-shadow:4px 4px 0 #071426;cursor:pointer;font:700 15px "Silkscreen",monospace;text-transform:uppercase;transition:transform .1s,background .1s}
+.btn-primary:hover{background:#91d7f0;transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Cooldown info */
+.cooldown-info{padding:12px;background:#1b3455;border:2px solid var(--deep-ink);margin-bottom:16px;font-size:13px;line-height:1.5}
+.cooldown-info strong{color:var(--sky)}
+.cooldown-ready{color:var(--green)}
+.cooldown-waiting{color:var(--orange)}
+.cost-info{color:var(--orange);font-size:13px;margin-bottom:12px}
+
+/* Placeholder */
+.placeholder-text{color:#5a8aaa;font-size:13px;text-align:center;padding:40px 20px;line-height:1.6}
+.placeholder-text strong{color:#8aabc4;display:block;margin-bottom:6px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;color:#092039;background:var(--sky);border:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;z-index:30;opacity:0;transform:translateY(10px);transition:all .3s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{background:var(--red);color:#fff}
+
+/* Streak badge */
+.streak-badge{display:flex;align-items:center;gap:4px;padding:3px 8px 3px 5px;background:#2d1050;border:2px solid #7c3aed;flex-shrink:0}.streak-badge.inactive{background:#1a1a2e;border-color:#374151}.streak-badge.inactive img{filter:grayscale(1) brightness(.6)}.streak-badge img{width:16px;height:16px;object-fit:contain;image-rendering:pixelated}.streak-badge span{color:#ffb347;font-size:12px;font-weight:700;line-height:1}.streak-badge.inactive span{color:#6b7280}
+.notif-wrap{position:relative}.notif-wrap[hidden]{display:none}.notif-btn{position:relative;width:40px;height:40px;padding:0;background:#132b48;border:2px solid #071426;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}.notif-btn:hover{background:#1b3f63}.notif-btn img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) invert(0.85)}.notif-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;background:#ff6b6b;color:#fff;border:2px solid var(--deep-ink);font:700 10px "Silkscreen",monospace;display:flex;align-items:center;justify-content:center;line-height:1}.notif-badge[hidden]{display:none}.notif-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:420px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:200;overflow:hidden}.notif-dropdown.open{display:flex;flex-direction:column}.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;color:var(--sky)}.notif-clear{background:none;border:0;color:var(--cream);font:700 11px "Silkscreen",monospace;cursor:pointer;opacity:.7;transition:opacity .15s}.notif-clear:hover{opacity:1;color:var(--sky)}.notif-list{overflow-y:auto;flex:1}.notif-item{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid #1a3050;font-size:12px;color:var(--cream);cursor:pointer;transition:background .12s}.notif-item:hover{background:#18304d}.notif-item.unread{background:#132a47}.notif-item.unread:hover{background:#1a3458}.notif-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#1b3f63;border:2px solid var(--deep-ink);font-size:14px}.notif-body{flex:1;min-width:0}.notif-text{margin:0;line-height:1.35;color:#c4d9e6}.notif-text strong{color:var(--sky)}.notif-empty{padding:20px;text-align:center;color:#5a8aaa;font-size:12px}
+.ach-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.ach-modal[hidden]{display:none}.ach-card-wrap{width:min(100%,780px);max-height:88vh;overflow:auto;padding:26px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative}.ach-card-wrap .close-detail{position:absolute;top:22px;right:17px}.ach-title{color:#f1f6fa;font-size:24px;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky);margin-bottom:20px}.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.ach-card{padding:16px;border:2px solid #1a2a40;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.ach-icon{font-size:28px;line-height:1}.ach-name{color:#f1f6fa;font-size:13px;font-weight:700}.ach-desc{color:#8aabc4;font-size:11px;line-height:1.35}
+
+@media(max-width:900px){
+  .nav-links{display:none}.profile-overview{min-width:auto}.menu-btn{display:block}
+}
+@media(max-width:700px){
+  .settings-layout{flex-direction:column}
+  .settings-sidebar{flex:none;width:100%}
+  .settings-tab-btn{display:inline-block;width:auto;border-bottom:none;border-left:3px solid transparent}
+  .settings-tab-btn.active{border-left:3px solid var(--sky)}
+}
+@media(max-width:600px){
+  .navbar{min-height:64px;padding:8px 12px}.settings-wrap{padding:25px 15px 50px}
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(119,207,239,.45) transparent}
+*::-webkit-scrollbar{width:6px;height:6px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(119,207,239,.45);border-radius:3px}
+*::-webkit-scrollbar-thumb:hover{background:rgba(119,207,239,.7)}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+  <a href="main.html">Home</a>
+  <a href="quests.html">Quests</a>
+  <a href="world.html">World</a>
+  <a href="rankings.html">Rankings</a>
+  <a href="store.html">Store</a>
+</div>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">&#9776;</button>
+    <div class="profile-overview" id="profileOverview">
+      <div class="profile-avatar" id="navAvatar"></div>
+      <div class="profile-info">
+        <div class="username" id="navUsername">GUEST</div>
+        <div class="level" id="navTitle">Adventurer</div>
+        <div class="xp-row">
+          <div class="xp-bar"><div class="xp-fill" id="navXpFill" style="width:0%"></div></div>
+          <span class="level-badge" id="navLevel">LV 0</span>
+        </div>
+      </div>
+      <div class="streak-badge inactive" id="navStreak">
+        <img src="Icons/fire.jfif" alt="Streak">
+        <span id="navStreakCount">0</span>
+      </div>
+      <div class="left-dropdown" id="leftProfileDropdown">
+        <a href="#" class="dropdown-item" id="achBtn">&#127942; Achievements</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="main.html">Home</a>
+    <a href="quests.html">Quests</a>
+    <a href="#">World</a>
+    <a href="#">Rankings</a>
+  </div>
+  <div class="right-section">
+    <div class="notif-wrap" id="notifWrap" hidden>
+      <button class="notif-btn" id="notifBtn" type="button" title="Notifications">
+        <img src="Icons/bells.jfif" alt="Notifications">
+        <span class="notif-badge" id="notifBadge" hidden>0</span>
+      </button>
+      <div class="notif-dropdown" id="notifDropdown">
+        <div class="notif-header">
+          <span>NOTIFICATIONS</span>
+          <button class="notif-clear" id="notifClearAll" type="button">CLEAR ALL</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="notif-empty">No notifications yet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="qp" id="qpBalance" hidden>&#9679; 0 QC</div>
+    <div class="profile-dropdown-wrap" id="profileDropdownWrap" hidden>
+      <button class="user-avatar" id="signoutBtn" type="button" title="Profile" aria-label="Profile menu"></button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="settings.html" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+        <a href="owner.html" class="dropdown-item" id="dropdownOwner" style="display:none">&#9873; Owner Panel</a>
+        <a href="admin.html" class="dropdown-item" id="dropdownAdmin" style="display:none">&#9876; Admin Dashboard</a>
+        <a href="moderator.html" class="dropdown-item" id="dropdownModerator" style="display:none">&#9876; Moderator Panel</a>
+        <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
+      </div>
+    </div>
+    <button class="signin-btn" id="signinBtn" type="button">Sign In</button>
+  </div>
+</nav>
+
+<main class="settings-page">
+  <div class="settings-wrap">
+    <h1>SETTINGS</h1>
+    <div class="settings-layout">
+      <div class="settings-sidebar">
+        <button class="settings-tab-btn active" data-tab="profile"><span class="tab-icon">&#128100;</span>Profile</button>
+        <button class="settings-tab-btn disabled" data-tab="account"><span class="tab-icon">&#128274;</span>Account</button>
+        <button class="settings-tab-btn disabled" data-tab="privacy"><span class="tab-icon">&#128065;</span>Privacy</button>
+      </div>
+      <div class="settings-content">
+
+        <!-- Profile Panel -->
+        <div class="settings-panel active" id="panelProfile">
+          <div class="panel-card">
+            <h2>PROFILE</h2>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Username</strong>
+                <span>Your unique display name. Can be changed every 14 days for 1,000 QC.</span>
+              </div>
+              <div class="settings-value" id="currentUsername">—</div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Display Name</strong>
+                <span>This is your Google account display name.</span>
+              </div>
+              <div class="settings-value" id="currentDisplayName">—</div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label">
+                <strong>Coins Balance</strong>
+              </div>
+              <div class="settings-value" id="currentCoins">0 QC</div>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <h2>CHANGE USERNAME</h2>
+
+            <div class="cooldown-info" id="cooldownInfo"></div>
+
+            <div class="form-group">
+              <label for="newUsername">NEW USERNAME</label>
+              <input type="text" id="newUsername" class="form-control" placeholder="Enter new username" maxlength="20">
+              <div id="usernameError" style="color:var(--red);font-size:12px;margin-top:4px;"></div>
+            </div>
+
+            <div class="cost-info">Cost: <strong>1,000 QC</strong> &middot; Cooldown: <strong>14 days</strong></div>
+
+            <button class="btn-primary" id="changeUsernameBtn" type="button">CHANGE USERNAME</button>
+          </div>
+
+          <div class="panel-card">
+            <h2>CHANGE DISPLAY NAME</h2>
+
+            <div class="cooldown-info" id="displayNameCooldownInfo"></div>
+
+            <div class="form-group">
+              <label for="newDisplayName">NEW DISPLAY NAME</label>
+              <input type="text" id="newDisplayName" class="form-control" placeholder="Enter new display name" maxlength="30">
+              <div id="displayNameError" style="color:var(--red);font-size:12px;margin-top:4px;"></div>
+            </div>
+
+            <div class="cost-info" style="color:var(--green)">Free &middot; Cooldown: <strong>7 days</strong></div>
+
+            <button class="btn-primary" id="changeDisplayNameBtn" type="button">SAVE DISPLAY NAME</button>
+          </div>
+        </div>
+
+        <!-- Account Panel -->
+        <div class="settings-panel" id="panelAccount">
+          <div class="panel-card">
+            <h2>ACCOUNT</h2>
+            <div class="placeholder-text">
+              <strong>Coming Soon</strong>
+              Account settings like email, password, and linked accounts will be available here.
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Panel -->
+        <div class="settings-panel" id="panelPrivacy">
+          <div class="panel-card">
+            <h2>PRIVACY</h2>
+            <div class="placeholder-text">
+              <strong>Coming Soon</strong>
+              Privacy settings like profile visibility and data preferences will be available here.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Achievements Modal -->
+<div class="ach-modal" id="achModal" hidden>
+  <div class="ach-card-wrap">
+    <button class="close-detail" id="achCloseBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="ach-title">ACHIEVEMENTS</h2>
+    <div class="ach-grid" id="achievementGrid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn');
+function closeMenu(){sidebar.classList.remove('active');overlay.classList.remove('active')}
+if(menuBtn) menuBtn.onclick=()=>{sidebar.classList.toggle('active');overlay.classList.toggle('active')};
+if(overlay) overlay.onclick=closeMenu;
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'error' ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('disabled')) return;
+    document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = document.getElementById('panel' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1));
+    if (panel) panel.classList.add('active');
+  });
+});
+</script>
+
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/notifications.js"></script>
+<script type="module" src="js/settings.js"></script>
+<script type="module" src="js/achievements.js"></script>
+<script type="module" src="js/streak.js"></script>
+<script src="js/nocopy.js"></script>
+</body>
+</html>

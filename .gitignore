@@ -67,3 +67,15 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+#Other
+venv/
+.agents/
+404.html
+fbindex.html
+CORS_SETUP.md
+keys.txt
+.firebase/
+__pycache__/
+.DS_Store
+Thumbs.db

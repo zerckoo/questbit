@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Side Quest</title>
+<title>QuestBit</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="Icons/Backpack.jpg">
 
 
 <style>
@@ -57,10 +58,19 @@ body{
     gap:9px;
 
     background:transparent;
-    padding:0;
-    border:0;
+    padding:6px 8px;
+    border:2px solid transparent;
     box-shadow:none;
     min-width:235px;
+    position:relative;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+    border-radius:0;
+}
+
+.profile-overview:hover{
+    border-color:#304d70;
+    background:rgba(48,77,104,.15);
 }
 
 .profile-avatar{
@@ -68,6 +78,8 @@ body{
     height:46px;
     border:2px solid var(--deep-ink);
     background:linear-gradient(135deg, #d87850 0 38%, #f3ba63 38% 62%, #3d9a83 62%);
+    background-size:cover;
+    background-position:center;
     box-shadow:none;
 }
 
@@ -85,7 +97,7 @@ body{
 
 .xp-bar{
     width:100%;
-    height:14px;
+    height:18px;
     background:var(--deep-ink);
     border:2px solid var(--deep-ink);
     overflow:hidden;
@@ -95,6 +107,19 @@ body{
     width:68%;
     height:100%;
     background:var(--sky);
+}
+
+.xp-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.level-badge{
+    color:var(--sky);
+    font-size:11px;
+    font-weight:700;
+    white-space:nowrap;
 }
 
 /* ---------- Navigation ---------- */
@@ -224,6 +249,24 @@ body{
     color:#ff6b6b;
 }
 
+/* ---------- Left Profile Dropdown ---------- */
+
+.left-dropdown{
+    display:none;
+    position:absolute;
+    top:calc(100% + 4px);
+    left:0;
+    min-width:200px;
+    background:var(--ink);
+    border:2px solid var(--deep-ink);
+    box-shadow:4px 4px 0 var(--deep-ink);
+    z-index:100;
+}
+
+.left-dropdown.open{
+    display:block;
+}
+
 /* ---------- Mobile Button ---------- */
 
 .menu-btn{
@@ -265,7 +308,8 @@ body{
     border-bottom:2px solid #304768;
 }
 
-.sidebar a:hover{
+.sidebar a:hover,
+.sidebar a.active{
     background:#304768;
     color:var(--gold);
 }
@@ -576,6 +620,13 @@ body{
     background:#1c3454;
     border:2px solid #0b1b31;
     box-shadow:4px 4px 0 #08182b;
+    transition:transform .18s ease, box-shadow .18s ease;
+}
+
+.featured-card:hover,
+.featured-card:focus-within{
+    transform:translateY(-4px);
+    box-shadow:7px 7px 0 #08182b;
 }
 
 .featured-type{
@@ -624,6 +675,15 @@ body{
     border:2px solid #0b1b31;
     cursor:pointer;
     font:700 13px "Silkscreen", monospace;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease, filter .15s ease;
+}
+
+.quest-accept:hover,
+.quest-accept:focus-visible{
+    background:#a9ecff;
+    transform:translateY(-2px);
+    box-shadow:3px 3px 0 #08182b;
+    filter:brightness(1.04);
 }
 
 .rankings-panel h2{ margin-bottom:18px; color:#f1f6fa; font-size:21px; }
@@ -831,6 +891,185 @@ body{
     .quests-layout{ grid-template-columns:1fr; }
     .featured-grid{ grid-template-columns:repeat(3, 1fr); }
 }
+
+/* Quest Detail Modal */
+.quest-detail-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}
+.quest-detail-modal[hidden]{display:none}
+.quest-detail-card{display:flex;flex-direction:column;width:min(100%,780px);max-height:90vh;overflow:auto;padding:22px 26px 22px 22px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;overflow-wrap:break-word;word-wrap:break-word}
+.quest-detail-top{display:grid;grid-template-columns:210px 1fr;gap:24px}
+.quest-detail-image{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #08182b;image-rendering:pixelated}
+.quest-detail-title{color:#f1f6fa;font-size:27px;line-height:1.35;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky)}
+.quest-detail-meta{display:flex;flex-wrap:wrap;gap:15px;margin:13px 0 19px;color:var(--sky);font-size:13px;line-height:1.6}
+.detail-meta-item{padding-bottom:2px;border-bottom:2px solid var(--sky)}
+.detail-cost{color:#f1f6fa}
+.detail-biome{color:#9bdcf4}
+.quest-detail-description{color:#c4d9e6;font-size:15px;line-height:1.6}
+.quest-detail-actions{display:flex;justify-content:space-between;gap:12px;margin-top:27px}
+.quest-detail-actions button{padding:12px 18px;border:2px solid #08182b;box-shadow:3px 3px 0 #08182b;cursor:pointer;font:700 13px "Silkscreen",monospace;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
+.btn-green,.accept-quest{color:#0b1b31!important;background:#76ca88!important;border:2px solid #08182b;box-shadow:3px 3px 0 #08182b;cursor:pointer;font:700 13px "Silkscreen",monospace;padding:12px 18px;transition:background .15s ease,transform .15s ease}
+.btn-green:hover:not(:disabled),.accept-quest:hover:not(:disabled){background:#91e2a2!important;transform:translateY(-2px)}
+.btn-red{color:#fff!important;background:#d93838!important;border:2px solid #08182b;box-shadow:3px 3px 0 #08182b;cursor:pointer;font:700 13px "Silkscreen",monospace;padding:12px 18px;transition:background .15s ease,transform .15s ease}
+.btn-red:hover:not(:disabled){background:#ff4d4d!important;transform:translateY(-2px)}
+.save-quest{color:#fff!important;background:#2b6cb0!important}
+.save-quest:hover:not(:disabled){background:#3182ce!important;transform:translateY(-2px)}
+.quest-detail-actions button:disabled{opacity:.65;cursor:not-allowed;transform:none!important}
+.close-detail{align-self:flex-end;margin:-6px -6px 12px 0;color:var(--cream);background:transparent;border:0;cursor:pointer;font:700 28px/1 "Silkscreen",monospace;padding:0 4px 2px;border-bottom:3px solid var(--sky);transition:color .15s,border-color .15s,transform .15s}
+.close-detail:hover,.close-detail:focus-visible{color:#ff6b6b;border-bottom-color:#ff6b6b;transform:scale(1.1)}
+
+/* Toast */
+.toast-popup{position:fixed;bottom:24px;right:24px;z-index:1000;padding:14px 20px;background:#102b49;color:var(--sky);border:3px solid #0b1b31;box-shadow:5px 5px 0 #071426;font:700 13px "Silkscreen",monospace;opacity:0;visibility:hidden;transform:translateY(15px);transition:opacity .4s ease,transform .4s ease,visibility .4s;pointer-events:none}
+.toast-popup.show{opacity:1;visibility:visible;transform:translateY(0)}
+
+/* Notification Bell */
+.notif-wrap{position:relative}
+.notif-wrap[hidden]{display:none}
+.notif-btn{
+    position:relative;
+    width:40px;height:40px;
+    padding:0;
+    background:#132b48;
+    border:2px solid #071426;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s;
+}
+.notif-btn:hover{background:#1b3f63}
+.notif-btn img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) invert(0.85)}
+.notif-badge{
+    position:absolute;top:-5px;right:-5px;
+    min-width:18px;height:18px;
+    padding:0 4px;
+    background:#ff6b6b;
+    color:#fff;
+    border:2px solid var(--deep-ink);
+    font:700 10px "Silkscreen",monospace;
+    display:flex;align-items:center;justify-content:center;
+    line-height:1;
+}
+.notif-badge[hidden]{display:none}
+.notif-dropdown{
+    display:none;
+    position:absolute;top:calc(100% + 8px);right:0;
+    width:340px;max-height:420px;
+    background:var(--ink);
+    border:2px solid var(--deep-ink);
+    box-shadow:4px 4px 0 var(--deep-ink);
+    z-index:200;
+    overflow:hidden;
+}
+.notif-dropdown.open{display:flex;flex-direction:column}
+.notif-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 14px;
+    border-bottom:2px solid var(--deep-ink);
+    font:700 12px "Silkscreen",monospace;
+    color:var(--sky);
+}
+.notif-clear{
+    background:none;border:0;color:var(--cream);
+    font:700 11px "Silkscreen",monospace;
+    cursor:pointer;opacity:.7;
+    transition:opacity .15s;
+}
+.notif-clear:hover{opacity:1;color:var(--sky)}
+.notif-list{overflow-y:auto;flex:1}
+.notif-item{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:11px 14px;
+    border-bottom:1px solid #1a3050;
+    font-size:12px;color:var(--cream);
+    cursor:pointer;
+    transition:background .12s;
+}
+.notif-item:hover{background:#18304d}
+.notif-item.unread{background:#132a47}
+.notif-item.unread:hover{background:#1a3458}
+.notif-icon{
+    width:28px;height:28px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:#1b3f63;border:2px solid var(--deep-ink);
+    font-size:14px;
+}
+.notif-body{flex:1;min-width:0}
+.notif-text{margin:0;line-height:1.35;color:#c4d9e6}
+.notif-text strong{color:var(--sky)}
+.notif-time{margin-top:3px;color:#5a7f9a;font-size:10px}
+.notif-empty{padding:24px;text-align:center;color:#5a7f9a;font-size:12px}
+.notif-mark-read{
+    position:absolute;top:8px;right:8px;
+    width:8px;height:8px;border-radius:50%;
+    background:var(--sky);
+    pointer-events:none;
+}
+
+/* Achievements */
+.ach-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}
+.ach-modal[hidden]{display:none}
+.ach-card-wrap{width:min(100%,780px);max-height:88vh;overflow:auto;padding:26px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative}
+.ach-card-wrap .close-detail{position:absolute;top:22px;right:17px}
+.ach-title{color:#f1f6fa;font-size:24px;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky);margin-bottom:20px}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.ach-card{padding:16px;border:2px solid #1a2a40;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.ach-icon{font-size:28px;line-height:1}
+.ach-name{color:#f1f6fa;font-size:13px;font-weight:700}
+.ach-desc{color:#8aabc4;font-size:11px;line-height:1.35}
+
+/* Footer */
+.site-footer{text-align:center;padding:24px 20px;border-top:2px solid var(--deep-ink);color:#5a7f9a;font-size:12px;background:var(--ink);margin-top:auto}
+
+/* Streak Badge */
+.streak-badge{
+    display:flex;align-items:center;gap:4px;
+    padding:3px 8px 3px 5px;
+    background:#2d1050;
+    border:2px solid #7c3aed;
+    flex-shrink:0;
+}
+.streak-badge.inactive{
+    background:#1a1a2e;
+    border-color:#374151;
+}
+.streak-badge.inactive img{
+    filter:grayscale(1) brightness(.6);
+}
+.streak-badge img{width:16px;height:16px;object-fit:contain;image-rendering:pixelated}
+.streak-badge span{color:#ffb347;font-size:12px;font-weight:700;line-height:1}
+.streak-badge.inactive span{color:#6b7280}
+
+/* Roll Quest Modal */
+.roll-modal-card{display:flex;flex-direction:column;align-items:center;width:min(100%,480px);max-height:90vh;overflow:auto;padding:32px 28px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative;text-align:center}
+.roll-modal-header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px}
+.roll-modal-header h2{color:#f1f6fa;font-size:22px;letter-spacing:1px;border-bottom:2px solid var(--sky);padding-bottom:6px}
+.roll-modal-die{width:48px;height:48px;object-fit:contain;image-rendering:pixelated}
+.roll-modal-desc{color:#b8d0e2;font-size:14px;line-height:1.6;margin-bottom:20px;max-width:380px}
+.roll-modal-desc strong{color:var(--sky)}
+.roll-pips{display:flex;gap:10px;margin-bottom:14px}
+.roll-pip{width:28px;height:28px;border:3px solid #0b1b31;background:#132b48;border-radius:50%;transition:background .3s,box-shadow .3s}
+.roll-pip.active{background:var(--sky);box-shadow:0 0 8px rgba(119,207,239,.45)}
+.roll-timer-row{margin-bottom:22px}
+.roll-timer-text{color:#5a7f9a;font-size:12px}
+.roll-modal-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;color:#102642;background:var(--sky);border:3px solid #08182b;box-shadow:4px 4px 0 #08182b;cursor:pointer;font:700 18px "Silkscreen",monospace;transition:transform .12s,box-shadow .12s,opacity .15s}
+.roll-modal-btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 #08182b}
+.roll-modal-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:4px 4px 0 #08182b!important}
+.roll-modal-btn:disabled .quest-die{animation:none!important}
+.roll-modal-no-rolls{color:#ff6b6b;font-size:13px;margin-top:12px;display:none}
+.roll-modal-no-rolls[hidden]{display:none}
+
+/* Roll Animation Overlay */
+.roll-anim-overlay{position:fixed;z-index:50;inset:0;display:grid;place-items:center;background:rgba(7,18,35,.88)}
+.roll-anim-overlay[hidden]{display:none}
+.roll-anim-card{display:flex;flex-direction:column;align-items:center;gap:20px;padding:48px 40px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426}
+.roll-dice-container{width:80px;height:80px;display:grid;place-items:center;background:#132b48;border:3px solid var(--sky);border-radius:50%;box-shadow:0 0 20px rgba(119,207,239,.3);animation:pulse-glow 1.2s ease-in-out infinite}
+.roll-dice-spin{width:50px;height:50px;object-fit:contain;image-rendering:pixelated;animation:spin-dice 0.8s linear infinite}
+.roll-anim-text{color:var(--sky);font-size:16px;font-weight:700;letter-spacing:1px;animation:text-blink 1.2s ease-in-out infinite}
+@keyframes spin-dice{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(119,207,239,.3)}50%{box-shadow:0 0 35px rgba(119,207,239,.6)}}
+@keyframes text-blink{0%,100%{opacity:1}50%{opacity:.5}}
+*{scrollbar-width:thin;scrollbar-color:rgba(119,207,239,.45) transparent}
+*::-webkit-scrollbar{width:6px;height:6px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(119,207,239,.45);border-radius:3px}
+*::-webkit-scrollbar-thumb:hover{background:rgba(119,207,239,.7)}
 </style>
 
 </head>
@@ -841,11 +1080,11 @@ body{
 
 
 <div class="sidebar" id="sidebar">
-    <a href="#">[H] Home</a>
-    <a href="quests.html">[Q] Quests</a>
-    <a href="#">[W] World</a>
-    <a href="#">[R] Rankings</a>
-    <a href="#">[C] Community</a>
+    <a href="main.html" class="active">Home</a>
+    <a href="quests.html">Quests</a>
+    <a href="world.html">World</a>
+    <a href="rankings.html">Rankings</a>
+    <a href="store.html">Store</a>
 </div>
 
 <nav class="navbar">
@@ -854,20 +1093,31 @@ body{
     <div style="display:flex;align-items:center;">
         <div class="menu-btn" onclick="toggleMenu()" aria-label="Open menu">&#9776;</div>
 
-        <div class="profile-overview">
+        <div class="profile-overview" id="profileOverview">
 
-            <div class="profile-avatar"></div>
+            <div class="profile-avatar" id="navAvatar"></div>
 
             <div class="profile-info">
 
-                <div class="username">LVL 14 WAYFARER</div>
+                <div class="username" id="navUsername">GUEST</div>
 
-                <div class="level">ADVENTURER</div>
+                <div class="level" id="navTitle">Adventurer</div>
 
-                <div class="xp-bar">
-                    <div class="xp-fill"></div>
+                <div class="xp-row">
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="navXpFill" style="width:0%"></div>
+                    </div>
+                    <span class="level-badge" id="navLevel">LV 0</span>
                 </div>
+            </div>
 
+            <div class="streak-badge inactive" id="navStreak">
+                <img src="Icons/fire.jfif" alt="Streak">
+                <span id="navStreakCount">0</span>
+            </div>
+
+            <div class="left-dropdown" id="leftProfileDropdown">
+                <a href="#" class="dropdown-item" id="achBtn">&#127942; Achievements</a>
             </div>
 
         </div>
@@ -875,25 +1125,43 @@ body{
 
     <!-- Center -->
     <div class="nav-links">
-        <a href="#">Home</a>
+        <a href="main.html" class="active">Home</a>
         <a href="quests.html">Quests</a>
-        <a href="#">World</a>
-        <a href="#">Rankings</a>
-        <a href="#">Community</a>
+        <a href="world.html">World</a>
+        <a href="rankings.html">Rankings</a>
+        <a href="store.html">Store</a>
     </div>
 
     <!-- Right -->
     <div class="right-section">
 
+        <div class="notif-wrap" id="notifWrap" hidden>
+            <button class="notif-btn" id="notifBtn" type="button" title="Notifications">
+                <img src="Icons/bells.jfif" alt="Notifications">
+                <span class="notif-badge" id="notifBadge" hidden>0</span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown">
+                <div class="notif-header">
+                    <span>NOTIFICATIONS</span>
+                    <button class="notif-clear" id="notifClearAll" type="button">CLEAR ALL</button>
+                </div>
+                <div class="notif-list" id="notifList">
+                    <div class="notif-empty">No notifications yet.</div>
+                </div>
+            </div>
+        </div>
+
         <div class="qp" id="qpBalance" hidden>
-            &#9679; 2,450 GP
+            &#9679; 0 QC
         </div>
 
         <div class="profile-dropdown-wrap" id="profileDropdownWrap" hidden>
             <button class="user-avatar" id="signoutBtn" type="button" title="Profile" aria-label="Profile menu"></button>
             <div class="profile-dropdown" id="profileDropdown">
-                <a href="#" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+                <a href="settings.html" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+                <a href="owner.html" class="dropdown-item" id="dropdownOwner" style="display:none">&#9873; Owner Panel</a>
                 <a href="admin.html" class="dropdown-item" id="dropdownAdmin" style="display:none">&#9876; Admin Dashboard</a>
+                <a href="moderator.html" class="dropdown-item" id="dropdownModerator" style="display:none">&#9876; Moderator Panel</a>
                 <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
             </div>
         </div>
@@ -907,7 +1175,7 @@ body{
     <section class="quest-card" aria-labelledby="quest-title">
         <div class="quest-content">
             <p class="quest-kicker">&#10022; NIGHTFALL ADVENTURE AVAILABLE</p>
-            <h1 id="quest-title">Your next <span>side quest</span> is waiting.</h1>
+            <h1 id="quest-title">Your next <span>quest</span> is waiting.</h1>
             <p class="quest-copy">Roll for a fresh challenge, explore something unexpected, and add a new story to your journey.</p>
             <button class="roll-quest-btn" id="rollQuestBtn" type="button">
                 <img class="quest-die" src="Icons/Dice.jfif" alt="">
@@ -923,27 +1191,27 @@ body{
 <section class="discovery-area" aria-labelledby="featured-heading">
     <div class="biome-tabs" role="tablist" aria-label="Quest biome">
     <button class="biome-tab" type="button" data-biome="beach" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Images/Ship.jfif" alt="" aria-hidden="true">
+        <img src="Icons/beach.png" alt="" aria-hidden="true">
         <span>Beach</span>
     </button>
 
     <button class="biome-tab" type="button" data-biome="sea" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Images/Coke.jfif" alt="" aria-hidden="true">
+        <img src="Icons/sea.png" alt="" aria-hidden="true">
         <span>Sea</span>
     </button>
 
     <button class="biome-tab active" type="button" data-biome="forest" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Images/Tea.jfif" alt="" aria-hidden="true">
+        <img src="Icons/Tree.png" alt="" aria-hidden="true">
         <span>Forest</span>
     </button>
 
     <button class="biome-tab" type="button" data-biome="mountains" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Images/Pistol.jfif" alt="" aria-hidden="true">
+        <img src="Icons/mountain.png" alt="" aria-hidden="true">
         <span>Mountains</span>
     </button>
 
     <button class="biome-tab" type="button" data-biome="city" style="display: inline-flex; align-items: center; gap: 8px;">
-        <img src="Images/Hu%20Tao.jfif" alt="" aria-hidden="true">
+        <img src="Icons/city.png" alt="" aria-hidden="true">
         <span>City</span>
     </button>
 
@@ -964,150 +1232,20 @@ body{
 
         <aside class="rankings-panel" aria-labelledby="rankings-heading">
             <h2 id="rankings-heading">DAILY RANKINGS</h2>
-            <div class="ranking-list">
-                <div class="ranking-row"><span class="ranking-rank">01.</span><span>EMBERFOX</span><span class="ranking-xp">14,200 XP</span></div>
-                <div class="ranking-row"><span class="ranking-rank">02.</span><span>RIVERBYTE</span><span class="ranking-xp">12,850 XP</span></div>
-                <div class="ranking-row"><span class="ranking-rank">03.</span><span>MOSSYKEY</span><span class="ranking-xp">11,100 XP</span></div>
-                <div class="ranking-row"><span class="ranking-rank">04.</span><span>SKYWARDEN</span><span class="ranking-xp">9,840 XP</span></div>
-                <div class="ranking-row"><span class="ranking-rank">05.</span><span>QUESTMATE</span><span class="ranking-xp">8,720 XP</span></div>
+            <div class="ranking-list" id="rankingList">
+                <div style="padding:20px;text-align:center;color:#5a7f9a;font-size:12px">Loading rankings...</div>
             </div>
-            <a class="all-rankings" href="#">VIEW FULL RANKINGS &#8250;</a>
+            <a class="all-rankings" href="rankings.html">VIEW FULL RANKINGS &#8250;</a>
         </aside>
     </div>
 </section>
 
-<script>
-
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-
-
-const signinBtn = document.getElementById("signinBtn");
-const signoutBtn = document.getElementById("signoutBtn");
-const qpBalance = document.getElementById("qpBalance");
-
-
-const biomeTabs = document.querySelectorAll(".biome-tab");
-const featuredGrid = document.getElementById("featuredGrid");
-const biomeLabel = document.getElementById("biomeLabel");
-
-const questImages = [
-    "Images/Moonlit%20Sky%208%20bit.jfif",
-    "Images/Ship.jfif",
-    "Images/Coffee.jfif",
-    "Images/Tea.jfif",
-    "Images/Coke.jfif",
-    "Images/Hu%20Tao.jfif",
-    "Images/Pistol.jfif"
-];
-
-const questPools = {
-    beach: [
-        ["Tidepool Tally", "Find five tiny shoreline creatures before the tide returns.", "SCOUT QUEST", "+180 XP"],
-        ["Sunset Sandwalk", "Take a mindful walk along the water and collect a smooth stone.", "EASY QUEST", "+120 XP"],
-        ["Message in a Bottle", "Write a note to your future self and keep it somewhere safe.", "STORY QUEST", "+210 XP"],
-        ["Shell Seeker", "Spot three different shell patterns on your next coastal stroll.", "DISCOVERY", "+160 XP"]
-    ],
-    sea: [
-        ["Blue Horizon", "Learn one surprising fact about the ocean's deepest waters.", "KNOWLEDGE QUEST", "+190 XP"],
-        ["Captain's Log", "Plan a dream voyage with three ports of call.", "STORY QUEST", "+150 XP"],
-        ["Harbor Watch", "Find a peaceful waterside view and sketch its horizon.", "CALM QUEST", "+170 XP"],
-        ["Current Reader", "Notice where water moves fastest during your next walk.", "SCOUT QUEST", "+200 XP"]
-    ],
-    forest: [
-        ["Lantern Trail", "Take an evening walk and notice three sounds from the trees.", "EXPLORER QUEST", "+220 XP"],
-        ["Moss Map", "Find a patch of green and make a tiny map of its surroundings.", "DISCOVERY", "+170 XP"],
-        ["Canopy Chronicle", "Read beneath a tree for ten quiet minutes.", "CALM QUEST", "+140 XP"],
-        ["Wildflower Witness", "Photograph or draw one plant you have never noticed before.", "SCOUT QUEST", "+200 XP"]
-    ],
-    mountains: [
-        ["Summit Steps", "Climb a hill, staircase, or trail and count your steady steps.", "ENDURANCE QUEST", "+240 XP"],
-        ["Echo Check", "Find an open place and test whether your voice carries.", "EXPLORER QUEST", "+180 XP"],
-        ["Trail Rations", "Pack a thoughtful snack for your next long walk.", "PREP QUEST", "+150 XP"],
-        ["Peak Postcard", "Draw the view from the highest point you visit today.", "STORY QUEST", "+210 XP"]
-    ],
-    city: [
-        ["Hidden Arcade", "Visit a street you have never walked and find one detail to remember.", "URBAN QUEST", "+200 XP"],
-        ["Café Chronicle", "Try a new drink or support a local spot.", "SOCIAL QUEST", "+150 XP"],
-        ["Window Quest", "Find the most interesting window display in your neighborhood.", "SCOUT QUEST", "+170 XP"],
-        ["Crosswalk Canvas", "Photograph a geometric pattern made by your city.", "CREATIVE QUEST", "+190 XP"]
-    ],
-    snow: [
-        ["Frosty Focus", "Make a warm drink and complete one task without distractions.", "COZY QUEST", "+160 XP"],
-        ["Winter Light", "Catch the softest light of the day in a photo or sketch.", "DISCOVERY", "+180 XP"],
-        ["Snowbound Story", "Read or write a short tale set in a winter world.", "STORY QUEST", "+210 XP"],
-        ["Cold Air Courage", "Take a brisk walk and notice how the air changes your pace.", "ENDURANCE QUEST", "+220 XP"]
-    ]
-};
-
-function shuffle(items){
-    return [...items].sort(() => Math.random() - .5);
-}
-
-function renderFeaturedQuests(biome){
-    const selectedQuests = shuffle(questPools[biome]).slice(0, 3);
-    biomeLabel.textContent = `${biome.toUpperCase()} PICKS`;
-    featuredGrid.innerHTML = selectedQuests.map((quest, index) => {
-        const [title, description, type, reward] = quest;
-        const image = questImages[(index + biome.length) % questImages.length];
-        return `
-            <article class="featured-card">
-                <span class="featured-type">${type}</span>
-                <h3>${title}</h3>
-                <img src="${image}" alt="${biome} quest artwork">
-                <p>${description}</p>
-                <div class="quest-meta">${biome.toUpperCase()} &middot; ${reward}</div>
-                <button class="quest-accept" type="button">ACCEPT QUEST &#8250;</button>
-            </article>`;
-    }).join("");
-}
-
-function setSignedIn(isSignedIn){
-    qpBalance.hidden = !isSignedIn;
-    var wrap = document.getElementById("profileDropdownWrap");
-    if (wrap) wrap.hidden = !isSignedIn;
-    signinBtn.hidden = isSignedIn;
-    localStorage.setItem("sideQuestDemoSignedIn", String(isSignedIn));
-}
-
-
-
-function toggleMenu(){
-
-    sidebar.classList.toggle("active");
-    overlay.classList.toggle("active");
-
-}
-
-overlay.onclick = () => {
-
-    sidebar.classList.remove("active");
-    overlay.classList.remove("active");
-
-};
-
-
-
-
-
-
-
-
-biomeTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-        biomeTabs.forEach((item) => item.classList.remove("active"));
-        tab.classList.add("active");
-        renderFeaturedQuests(tab.dataset.biome);
-    });
-});
-
-
-
-setSignedIn(localStorage.getItem("sideQuestDemoSignedIn") === "true");
-
-</script>
-
+<script type="module" src="js/main.js"></script>
 <script type="module" src="js/auth.js"></script>
+<script type="module" src="js/notifications.js"></script>
+<script type="module" src="js/achievements.js"></script>
+<script type="module" src="js/streak.js"></script>
+<script src="js/nocopy.js"></script>
 
 
 
@@ -1130,8 +1268,108 @@ setSignedIn(localStorage.getItem("sideQuestDemoSignedIn") === "true");
         </button>
     </div>
 </div>
+
+<!-- Roll Quest Modal -->
+<div class="quest-detail-modal" id="rollQuestModal" hidden>
+  <div class="roll-modal-card">
+    <button class="close-detail" id="closeRollModal" type="button" aria-label="Close modal">&#10005;</button>
+    <div class="roll-modal-header">
+      <img class="roll-modal-die" src="Icons/Dice.jfif" alt="">
+      <h2>ROLL A QUEST</h2>
+    </div>
+    <p class="roll-modal-desc">You have <strong id="rollRemainingText">5</strong> rolls remaining. You gain 1 roll every 2 hours and 24 minutes. Rolls recharge automatically over time.</p>
+    <div class="roll-pips" id="rollPips">
+      <span class="roll-pip active"></span>
+      <span class="roll-pip active"></span>
+      <span class="roll-pip active"></span>
+      <span class="roll-pip active"></span>
+      <span class="roll-pip active"></span>
+    </div>
+    <div class="roll-timer-row" id="rollTimerRow">
+      <span class="roll-timer-text" id="rollTimerText">Next roll in: --:--</span>
+    </div>
+    <button class="roll-modal-btn" id="rollModalBtn" type="button">
+      <img class="quest-die" src="Icons/Dice.jfif" alt="">
+      ROLL!
+    </button>
+    <p class="roll-modal-no-rolls" id="rollNoRolls" hidden>No rolls left. Wait for them to recharge!</p>
+  </div>
 </div>
 
+<!-- Roll Animation Overlay -->
+<div class="roll-anim-overlay" id="rollAnimOverlay" hidden>
+  <div class="roll-anim-card">
+    <div class="roll-dice-container">
+      <img class="roll-dice-spin" src="Icons/Dice.jfif" alt="">
+    </div>
+    <p class="roll-anim-text">Finding your quest...</p>
+  </div>
+</div>
+
+<!-- Home Quest Detail Modal -->
+<div class="quest-detail-modal" id="homeQuestDetailModal" hidden>
+  <div class="quest-detail-card">
+    <button class="close-detail" id="closeHomeDetailBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <div class="quest-detail-top">
+      <img class="quest-detail-image" id="homeModalImage" src="Icons/Tree.png" alt="Quest Image">
+      <div>
+        <h2 class="quest-detail-title" id="homeModalTitle">Quest Title</h2>
+        <div class="quest-detail-meta">
+          <span class="detail-meta-item" id="homeModalXP">0 XP</span>
+          <span class="detail-meta-item detail-biome" id="homeModalBiome">Biome: --</span>
+          <span class="detail-meta-item detail-cost" id="homeModalCost">Cost: --</span>
+        </div>
+        <p class="quest-detail-description" id="homeModalDesc">No description available.</p>
+      </div>
+    </div>
+    <div class="quest-detail-actions">
+      <button class="save-quest" id="homeSaveQuestBtn" type="button">★ SAVE QUEST</button>
+      <button class="accept-quest" id="homeAcceptQuestBtn" type="button">✔ ACCEPT QUEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- Home Quest Accepted Modal -->
+<div class="quest-detail-modal" id="homeAcceptedModal" hidden>
+  <div class="quest-detail-card" style="max-width:500px;text-align:center">
+    <button class="close-detail" id="closeHomeAcceptedBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color:var(--sky);color:#f1f6fa;margin-bottom:16px">QUEST ACCEPTED!</h2>
+    <p style="color:#c4d9e6;font-size:14px;line-height:1.6;margin-bottom:24px">
+      Your quest has been added to your journal! You can view, track, and complete your active quests anytime by clicking the <strong style="color:var(--sky)">"MY QUESTS"</strong> button on the <a href="quests.html" style="color:var(--sky)">Quests</a> page.
+    </p>
+    <div style="display:flex;justify-content:center">
+      <button class="btn-green" id="ackHomeAcceptedBtn" type="button">GOT IT!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sign In Required Modal -->
+<div class="quest-detail-modal" id="signInRequiredModal" hidden>
+  <div class="quest-detail-card" style="max-width:480px;text-align:center">
+    <button class="close-detail" id="closeSignInRequiredBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color:var(--sky);color:#f1f6fa;margin-bottom:16px">SIGN IN REQUIRED</h2>
+    <p style="color:#c4d9e6;font-size:14px;line-height:1.6;margin-bottom:24px">
+      You must be signed in before you can <strong style="color:var(--sky)" id="signInActionWord">accept or save</strong> quests. Sign in to start your adventure!
+    </p>
+    <div style="display:flex;justify-content:center;gap:12px">
+      <button class="btn-green" id="signInRequiredBtn" type="button">SIGN IN</button>
+    </div>
+  </div>
+</div>
+
+<!-- Achievements Modal -->
+<div class="ach-modal" id="achModal" hidden>
+  <div class="ach-card-wrap">
+    <button class="close-detail" id="achCloseBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="ach-title">ACHIEVEMENTS</h2>
+    <div class="ach-grid" id="achievementGrid"></div>
+  </div>
+</div>
+
+<!-- Bottom-Right Toast Notification -->
+<div class="toast-popup" id="toastPopup">Quest notification!</div>
+
+<footer class="site-footer">Icons and art by leovolpozzz</footer>
 
 </body>
 </html>

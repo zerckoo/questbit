@@ -21,36 +21,151 @@ import {
 
 const provider = new GoogleAuthProvider();
 
+// =========================
+// Role Hierarchy
+// =========================
+
+import { GameBalance } from "./gameBalance.js";
+import { getProgressToNextLevel } from "./xpSystem.js";
+
+const ROLE_HIERARCHY = GameBalance.roles;
+
+window.ROLE_HIERARCHY = ROLE_HIERARCHY;
+
+window.getUserRoleLevel = function(role) {
+    return ROLE_HIERARCHY[role] || 0;
+};
+
+window.canModerate = function(actorRole, targetRole) {
+    return ROLE_HIERARCHY[actorRole] > ROLE_HIERARCHY[targetRole];
+};
+
+window.getHighestRole = function(roles) {
+    if (!roles || !roles.length) return 'player';
+    let best = 'player';
+    for (const r of roles) {
+        if ((ROLE_HIERARCHY[r] || 0) > (ROLE_HIERARCHY[best] || 0)) best = r;
+    }
+    return best;
+};
+
 // Elements
 const signinBtn = document.getElementById("signinBtn");
 const signoutBtn = document.getElementById("signoutBtn");
 const qpBalance = document.getElementById("qpBalance");
 const profileDropdownWrap = document.getElementById("profileDropdownWrap");
 const profileDropdown = document.getElementById("profileDropdown");
+const leftProfileDropdown = document.getElementById("leftProfileDropdown");
+const profileOverview = document.getElementById("profileOverview");
 const dropdownAdmin = document.getElementById("dropdownAdmin");
+const dropdownMod = document.getElementById("dropdownModerator");
+const dropdownOwner = document.getElementById("dropdownOwner");
 const dropdownLogout = document.getElementById("dropdownLogout");
 
 // Expose role globally
 window.userRole = "player";
+window.userRoles = ["player"];
+window.userData = null;
+
+function formatCoins(n) {
+    return Number(n || 0).toLocaleString();
+}
+
+window.updateCoinDisplay = function(coins) {
+    if (qpBalance) {
+        qpBalance.textContent = "\u25CF " + formatCoins(coins) + " QC";
+    }
+};
+
+window.updateNavProfile = function(data) {
+    const avatar = document.getElementById("navAvatar");
+    const username = document.getElementById("navUsername");
+    const title = document.getElementById("navTitle");
+    const xpFill = document.getElementById("navXpFill");
+    const levelBadge = document.getElementById("navLevel");
+    const coinsEl = document.getElementById("navCoins");
+
+    if (avatar) {
+        if (data.photoURL) {
+            avatar.style.backgroundImage = `url(${data.photoURL})`;
+            avatar.style.background = `url(${data.photoURL}) center/cover, linear-gradient(135deg, #d87850 0 38%, #f3ba63 38% 62%, #3d9a83 62%)`;
+        } else {
+            avatar.style.backgroundImage = '';
+            avatar.style.background = 'linear-gradient(135deg, #d87850 0 38%, #f3ba63 38% 62%, #3d9a83 62%)';
+        }
+    }
+
+    if (username) {
+        username.textContent = data.username || data.displayName || "GUEST";
+    }
+
+    if (title) {
+        title.textContent = data.title || "Adventurer";
+    }
+
+    const xp = data.xp || 0;
+    const progress = getProgressToNextLevel(xp);
+    const level = progress.level;
+    const xpPercent = progress.percent;
+
+    if (xpFill) xpFill.style.width = xpPercent + "%";
+    if (levelBadge) levelBadge.textContent = "LV " + level;
+    if (coinsEl) coinsEl.textContent = "\u25CF " + formatCoins(data.coins || 0) + " QC";
+
+    const streakBadge = document.getElementById("navStreak");
+    const streakCount = document.getElementById("navStreakCount");
+    const streakDays = data.streakDays || 0;
+    if (streakBadge) {
+        streakBadge.hidden = false;
+        streakCount.textContent = streakDays;
+        const isActive = data.streakActiveToday === true || data.streakActiveToday === undefined;
+        streakBadge.classList.toggle("inactive", !isActive);
+    }
+};
 
 // =========================
 // Dropdown Toggle
 // =========================
 
+function closeBothDropdowns() {
+    if (profileDropdown) profileDropdown.classList.remove("open");
+    if (leftProfileDropdown) leftProfileDropdown.classList.remove("open");
+}
+
 if (signoutBtn) {
     signoutBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (profileDropdown) {
-            profileDropdown.classList.toggle("open");
+        const willOpen = !profileDropdown.classList.contains("open");
+        closeBothDropdowns();
+        if (willOpen) profileDropdown.classList.add("open");
+    });
+}
+
+if (profileOverview) {
+    profileOverview.addEventListener("click", (e) => {
+        if (e.target.closest('.dropdown-item')) {
+            closeBothDropdowns();
+            return;
         }
+        if (e.target.closest('.left-dropdown')) return;
+        e.stopPropagation();
+        const willOpen = !leftProfileDropdown.classList.contains("open");
+        closeBothDropdowns();
+        if (willOpen) leftProfileDropdown.classList.add("open");
     });
 }
 
 // Close dropdown on outside click
 document.addEventListener("click", (e) => {
-    if (profileDropdown && profileDropdown.classList.contains("open")) {
-        if (!profileDropdown.contains(e.target) && e.target !== signoutBtn) {
-            profileDropdown.classList.remove("open");
+    const rightOpen = profileDropdown && profileDropdown.classList.contains("open");
+    const leftOpen = leftProfileDropdown && leftProfileDropdown.classList.contains("open");
+    if (rightOpen || leftOpen) {
+        const inRight = profileDropdown && profileDropdown.contains(e.target);
+        const inLeft = leftProfileDropdown && leftProfileDropdown.contains(e.target);
+        const onRightBtn = e.target === signoutBtn || (profileDropdownWrap && profileDropdownWrap.contains(e.target));
+        const onLeftBtn = profileOverview && profileOverview.contains(e.target);
+        if (!inRight && !inLeft && !onRightBtn && !onLeftBtn) {
+            closeBothDropdowns();
         }
     }
 });
@@ -63,19 +178,20 @@ if (dropdownLogout) {
     dropdownLogout.addEventListener("click", async () => {
         try {
             await signOut(auth);
-            if (profileDropdown) profileDropdown.classList.remove("open");
+            closeBothDropdowns();
         } catch (error) {
             console.error(error);
         }
     });
 }
 
-// Settings is a dummy button — just close dropdown
+// Settings link
 const dropdownSettings = document.getElementById("dropdownSettings");
 if (dropdownSettings) {
     dropdownSettings.addEventListener("click", (e) => {
         e.preventDefault();
-        if (profileDropdown) profileDropdown.classList.remove("open");
+        closeBothDropdowns();
+        window.location.href = "settings.html";
     });
 }
 
@@ -110,8 +226,12 @@ onAuthStateChanged(auth, async (user) => {
         signinBtn.hidden = false;
         if (profileDropdownWrap) profileDropdownWrap.hidden = true;
         qpBalance.hidden = true;
-        if (profileDropdown) profileDropdown.classList.remove("open");
+        closeBothDropdowns();
         window.userRole = "player";
+        window.userRoles = ["player"];
+        window.userData = null;
+        window.updateCoinDisplay(0);
+        window.updateNavProfile({ username: "GUEST", title: "Adventurer", xp: 0, level: 0, xpInLevel: 0 });
         updateAdminLink();
         return;
     }
@@ -137,9 +257,33 @@ onAuthStateChanged(auth, async (user) => {
             displayName: user.displayName,
             photoURL: user.photoURL,
             role: "player",
+            roles: ["player"],
+            title: "Adventurer",
+            coins: 0,
+            totalCoinsEarned: 0,
+            xp: 0,
+            level: 0,
+            xpInLevel: 0,
+            questsCompleted: 0,
+            maxDailyCompletions: 0,
+            streakDays: 0,
+            streakActiveToday: false,
+            lastStreakDate: "",
+            lastActive: null,
+            dailyXP: 0,
+            dailyResetDate: "",
+            weeklyXP: 0,
+            weeklyResetDate: "",
+            monthlyXP: 0,
+            monthlyResetDate: "",
+            yearlyXP: 0,
+            yearlyResetDate: "",
             createdAt: serverTimestamp()
         });
         window.userRole = "player";
+        window.userData = { coins: 0, totalCoinsEarned: 0, xp: 0, level: 0, xpInLevel: 0, questsCompleted: 0, streakDays: 0, title: "Adventurer", photoURL: user.photoURL, displayName: user.displayName, dailyXP: 0, dailyResetDate: "", weeklyXP: 0, weeklyResetDate: "", monthlyXP: 0, monthlyResetDate: "", yearlyXP: 0, yearlyResetDate: "" };
+        window.updateCoinDisplay(0);
+        window.updateNavProfile(window.userData);
         updateAdminLink();
         showUsernameModal();
         console.log("Auth state changed", user);
@@ -147,7 +291,11 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const data = snapshot.data();
-    window.userRole = data.role || "player";
+    window.userData = data;
+    window.userRoles = data.roles || [data.role || "player"];
+    window.userRole = data.role || window.getHighestRole(window.userRoles);
+    window.updateCoinDisplay(data.coins || 0);
+    window.updateNavProfile(data);
     updateAdminLink();
 
     if (data.username === null) {
@@ -161,11 +309,24 @@ onAuthStateChanged(auth, async (user) => {
 // =========================
 
 function updateAdminLink() {
+    const roleLevel = ROLE_HIERARCHY[window.userRole] || 0;
+    const dropdownAdmin = document.getElementById("dropdownAdmin");
+    const dropdownMod = document.getElementById("dropdownModerator");
+    const dropdownOwner = document.getElementById("dropdownOwner");
     if (dropdownAdmin) {
-        dropdownAdmin.style.display = window.userRole === "admin" ? "" : "none";
+        dropdownAdmin.style.display = roleLevel >= ROLE_HIERARCHY.admin ? "" : "none";
+    }
+    if (dropdownMod) {
+        dropdownMod.style.display = roleLevel >= ROLE_HIERARCHY.moderator ? "" : "none";
+    }
+    if (dropdownOwner) {
+        dropdownOwner.style.display = roleLevel >= ROLE_HIERARCHY.owner ? "" : "none";
     }
     if (typeof window.onAuthReady === "function") {
         window.onAuthReady(window.userRole);
+    }
+    if (typeof window.onRoleReady === "function") {
+        window.onRoleReady(window.userRole);
     }
 }
 
@@ -234,44 +395,20 @@ if (saveUsernameBtn) {
     });
 }
 
-// =========================
-// Admin Role Helpers
-// =========================
-
-// Promote any user to admin by their username
-// Usage from console: promoteToAdmin("their_username")
-window.promoteToAdmin = async function (username) {
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("username", "==", username));
-    const result = await getDocs(q);
-    if (result.empty) {
-        console.error("No user found with username:", username);
-        return false;
-    }
-    const userDoc = result.docs[0];
-    await updateDoc(userDoc.ref, { role: "admin" });
-    console.log("User", username, "promoted to admin!");
-    // If promoting yourself, update live
-    if (auth.currentUser && userDoc.id === auth.currentUser.uid) {
-        window.userRole = "admin";
-        updateAdminLink();
-    }
-    return true;
-};
-
-// Promote the currently signed-in user to admin
-// Usage from console: promoteSelfToAdmin()
-window.promoteSelfToAdmin = async function () {
-    if (!auth.currentUser) {
-        console.error("You must be signed in.");
-        return false;
-    }
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    await updateDoc(userRef, { role: "admin" });
-    window.userRole = "admin";
-    updateAdminLink();
-    console.log("You have been promoted to admin!");
-    return true;
-};
-
 export { auth, db };
+
+// =========================
+// Keyboard Navigation
+// =========================
+
+document.addEventListener("keydown", (e) => {
+    const tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select" || e.target.isContentEditable) return;
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    const key = e.key.toLowerCase();
+    const routes = { h: "main.html", q: "quests.html", w: "world.html", r: "rankings.html", s: "store.html" };
+    if (routes[key]) {
+        e.preventDefault();
+        window.location.href = routes[key];
+    }
+});

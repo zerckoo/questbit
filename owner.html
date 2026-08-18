@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuestBit | Admin Dashboard</title>
+<title>QuestBit | Owner Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
@@ -123,7 +123,6 @@ select.form-control{cursor:pointer}
 
 /* Moderator extras */
 .badge-pending{color:#fff;background:#f59e0b}.badge-approved{color:#fff;background:var(--green)}.badge-rejected{color:#fff;background:var(--red)}.badge-suspended{color:#fff;background:#a855f7}.badge-banned{color:#fff;background:#dc2626}.badge-warned{color:#000;background:#fbbf24}.badge-gold{color:#1a1203;background:#ffd24d}
-/* Settings toggle switch */
 .switch{position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0}
 .switch input{opacity:0;width:0;height:0}
 .switch .slider{position:absolute;cursor:pointer;inset:0;background:#345275;border:2px solid var(--deep-ink);transition:.2s}
@@ -177,7 +176,7 @@ select.form-control{cursor:pointer}
   .admin-header{flex-direction:column;align-items:flex-start}
   .quest-table th:nth-child(n+4),.quest-table td:nth-child(n+4){display:none}
 }
-.notif-wrap{position:relative}.notif-wrap[hidden]{display:none}.notif-btn{position:relative;width:40px;height:40px;padding:0;background:#132b48;border:2px solid #071426;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}.notif-btn:hover{background:#1b3f63}.notif-btn img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) invert(0.85)}.notif-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;background:#ff6b6b;color:#fff;border:2px solid var(--deep-ink);font:700 10px "Silkscreen",monospace;display:flex;align-items:center;justify-content:center;line-height:1}.notif-badge[hidden]{display:none}.notif-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:420px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:200;overflow:hidden}.notif-dropdown.open{display:flex;flex-direction:column}.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;color:var(--sky)}.notif-clear{background:none;border:0;color:var(--cream);font:700 11px "Silkscreen",monospace;cursor:pointer;opacity:.7;transition:opacity .15s}.notif-clear:hover{opacity:1;color:var(--sky)}.notif-list{overflow-y:auto;flex:1}.notif-item{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid #1a3050;font-size:12px;color:var(--cream);cursor:pointer;transition:background .12s}.notif-item:hover{background:#18304d}.notif-item.unread{background:#132a47}.notif-item.unread:hover{background:#1a3458}.notif-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#1b3f63;border:2px solid var(--deep-ink);font-size:14px}.notif-body{flex:1;min-width:0}.notif-text{margin:0;line-height:1.35;color:#c4d9e6}.notif-text strong{color:var(--sky)}.notif-time{margin-top:3px;color:#5a7f9a;font-size:10px}.notif-empty{padding:24px;text-align:center;color:#5a7f9a;font-size:12px}
+.notif-wrap{position:relative}.notif-wrap[hidden]{display:none}.notif-btn{position:relative;width:40px;height:40px;padding:0;background:#132b48;border:2px solid #071426;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}.notif-btn:hover{background:#1b3f63}.notif-btn img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) invert(0.85)}.notif-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;background:#ff6b6b;color:#fff;border:2px solid var(--deep-ink);font:700 10px "Silkscreen",monospace;display:flex;align-items:center;justify-content:center;line-height:1}.notif-badge[hidden]{display:none}.notif-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:420px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:200;overflow:hidden}.notif-dropdown.open{display:flex;flex-direction:column}.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;color:var(--sky)}.notif-clear{background:none;border:0;color:var(--cream);font:700 11px "Silkscreen",monospace;cursor:pointer;opacity:.7;transition:opacity .15s}.notif-clear:hover{opacity:1;color:var(--sky)}.notif-list{overflow-y:auto;flex:1}.notif-item{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid #1a3050;font-size:12px;color:var(--cream);cursor:pointer;transition:background .12s}.notif-item:hover{background:#18304d}.notif-item.unread{background:#132a47}.notif-item.unread:hover{background:#1a3458}.notif-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#1b3f63;border:2px solid var(--deep-ink);font-size:14px}.notif-body{flex:1;min-width:0}.notif-text{margin:0;line-height:1.35;color:#c4d9e6}.notif-text strong{color:var(--sky)}.notif-empty{padding:30px;text-align:center;color:#5a8aaa;font-size:12px}
 .ach-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.ach-modal[hidden]{display:none}.ach-card-wrap{width:min(100%,780px);max-height:88vh;overflow:auto;padding:26px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative}.ach-card-wrap .close-detail{position:absolute;top:22px;right:17px}.ach-title{color:#f1f6fa;font-size:24px;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky);margin-bottom:20px}.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.ach-card{padding:16px;border:2px solid #1a2a40;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.ach-icon{font-size:28px;line-height:1}.ach-name{color:#f1f6fa;font-size:13px;font-weight:700}.ach-desc{color:#8aabc4;font-size:11px;line-height:1.35}
 .streak-badge{display:flex;align-items:center;gap:4px;padding:3px 8px 3px 5px;background:#2d1050;border:2px solid #7c3aed;flex-shrink:0}.streak-badge.inactive{background:#1a1a2e;border-color:#374151}.streak-badge.inactive img{filter:grayscale(1) brightness(.6)}.streak-badge img{width:16px;height:16px;object-fit:contain;image-rendering:pixelated}.streak-badge span{color:#ffb347;font-size:12px;font-weight:700;line-height:1}.streak-badge.inactive span{color:#6b7280}
 .site-footer{text-align:center;padding:24px 20px;border-top:2px solid var(--deep-ink);color:#5a7f9a;font-size:12px;background:var(--ink)}
@@ -210,7 +209,7 @@ select.form-control{cursor:pointer}
   <a href="world.html">World</a>
   <a href="rankings.html">Rankings</a>
   <a href="store.html">Store</a>
-  <a href="admin.html" class="active">Admin</a>
+  <a href="owner.html" class="active">Owner</a>
 </div>
 
 <!-- Navbar -->
@@ -241,7 +240,7 @@ select.form-control{cursor:pointer}
     <a href="quests.html">Quests</a>
     <a href="#">World</a>
     <a href="#">Rankings</a>
-    <a href="admin.html" class="active">Admin</a>
+    <a href="owner.html" class="active">Owner</a>
   </div>
   <div class="right-section">
     <div class="notif-wrap" id="notifWrap" hidden>
@@ -264,7 +263,6 @@ select.form-control{cursor:pointer}
       <button class="user-avatar" id="signoutBtn" type="button" title="Profile" aria-label="Profile menu"></button>
       <div class="profile-dropdown" id="profileDropdown">
         <a href="settings.html" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
-        <a href="owner.html" class="dropdown-item" id="dropdownOwner" style="display:none">&#9873; Owner Panel</a>
         <a href="admin.html" class="dropdown-item" id="dropdownAdmin">&#9876; Admin Dashboard</a>
         <a href="moderator.html" class="dropdown-item" id="dropdownModerator" style="display:none">&#9876; Moderator Panel</a>
         <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
@@ -278,10 +276,10 @@ select.form-control{cursor:pointer}
   <div class="admin-container">
     
     <div class="admin-header">
-      <h1>ADMIN DASHBOARD</h1>
+      <h1>OWNER PANEL</h1>
       <button class="btn-create" id="toggleCreateBtn" type="button">+ CREATE QUEST</button>
     </div>
-    <p class="admin-intro">Control panel for managing quests, drafting new adventures, moderating users, and maintaining the QuestBit system.</p>
+    <p class="admin-intro">Full administrative control. Manage quests, moderate users, assign roles, and maintain the QuestBit system.</p>
 
     <!-- Main Tabs -->
     <div class="mod-tabs">
@@ -291,6 +289,7 @@ select.form-control{cursor:pointer}
       <button class="mod-tab" data-maintab="penalties" onclick="switchMainTab('penalties')">MANAGE PENALTIES</button>
       <button class="mod-tab" data-maintab="activity" onclick="switchMainTab('activity')">ACTIVITY LOG</button>
       <button class="mod-tab" data-maintab="stats" onclick="switchMainTab('stats')">STATISTICS</button>
+      <button class="mod-tab" data-maintab="roles" onclick="switchMainTab('roles')">ROLE MANAGEMENT</button>
       <button class="mod-tab" data-maintab="adjust" onclick="switchMainTab('adjust')">ADJUST USER</button>
       <button class="mod-tab" data-maintab="settings" onclick="switchMainTab('settings')">SITE SETTINGS</button>
     </div>
@@ -552,23 +551,13 @@ select.form-control{cursor:pointer}
       <div class="search-container">
         <input type="text" id="userSearchBar" class="search-bar" placeholder="Search users by username or email...">
       </div>
-      <div class="filter-row">
-        <select class="filter-select" id="userRoleFilter">
-          <option value="all">All Roles</option>
-          <option value="player">Players</option>
-          <option value="paid">Paid</option>
-          <option value="moderator">Moderators</option>
-          <option value="admin">Admins</option>
-          <option value="owner">Owner</option>
-        </select>
-      </div>
       <table class="queue-table">
         <thead>
           <tr>
             <th>#</th>
             <th>Username</th>
             <th>Email</th>
-            <th>Roles</th>
+            <th>Role</th>
             <th>Status</th>
             <th>Joined</th>
             <th>Actions</th>
@@ -644,6 +633,38 @@ select.form-control{cursor:pointer}
       <section class="stats-grid" id="detailedStats"></section>
     </div>
 
+    <!-- ========== TAB: ROLE MANAGEMENT ========== -->
+    <div class="mod-tab-content" id="tabRoles">
+    <div class="panel-header"><h2>ROLE MANAGEMENT</h2></div>
+    <div class="search-container">
+      <input type="text" id="roleSearchBar" class="search-bar" placeholder="Search users by username or email...">
+    </div>
+    <div class="filter-row">
+      <select class="filter-select" id="roleFilterSelect">
+        <option value="all">All Roles</option>
+        <option value="player">Players</option>
+        <option value="paid">Paid</option>
+        <option value="moderator">Moderators</option>
+        <option value="admin">Admins</option>
+        <option value="special_admin">Special Admins</option>
+        <option value="owner">Owner</option>
+      </select>
+    </div>
+    <table class="queue-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Current Roles</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="roleTableBody"></tbody>
+    </table>
+    <div class="empty-state" id="roleEmptyState" hidden>No users found.</div>
+    </div>
+
     <!-- ========== TAB: ADJUST USER ========== -->
     <div class="mod-tab-content" id="tabAdjust">
     <div class="panel-header"><h2>ADJUST USER</h2></div>
@@ -699,14 +720,6 @@ select.form-control{cursor:pointer}
           <input type="checkbox" id="proofImageStorageToggle">
           <span class="slider"></span>
         </label>
-      </div>
-    </div>
-    <div style="background:#0d1f36;border:2px solid #304768;border-radius:8px;padding:18px;max-width:620px;margin-bottom:14px;">
-      <div style="color:#f1f6fa;font-weight:700;font-size:14px;">Leaderboard Backfill</div>
-      <div style="color:#8aabc4;font-size:12px;margin-top:6px;line-height:1.5;">Recomputes weekly, monthly and yearly XP for every player from their completed-quest history. Run this once after upgrading to the new rankings so existing completions appear on the leaderboard. This reads every player's quest history and may take a little while.</div>
-      <div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-        <button class="btn-primary" id="backfillBtn" type="button" style="padding:10px 18px;font-size:12px;">RUN BACKFILL</button>
-        <span id="backfillStatus" style="color:#8aabc4;font-size:12px;"></span>
       </div>
     </div>
     <div id="settingsStatus" style="margin-top:14px;color:var(--sky);font-size:12px;"></div>
@@ -805,6 +818,56 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
+<!-- Role Assignment Modal -->
+<div class="modal-overlay" id="roleAssignModal" hidden>
+  <div class="modal-card" style="max-width:520px;">
+    <div class="modal-header">
+      <h2>ASSIGN ROLES</h2>
+      <button class="modal-close" id="closeRoleAssignModal" type="button">&times;</button>
+    </div>
+    <div id="roleAssignUserInfo" style="margin-bottom:16px;"></div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;color:var(--sky);margin-bottom:10px;font-size:12px;text-transform:uppercase;">SELECT ROLES</label>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:#1b3455;border:2px solid var(--deep-ink);transition:border-color .15s;">
+          <input type="checkbox" id="rolePlayer" value="player" style="width:18px;height:18px;accent-color:var(--sky);">
+          <span style="color:var(--cream);">Player</span>
+          <span style="color:#5a8aaa;font-size:11px;margin-left:auto;">Level 1</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:#1b3455;border:2px solid var(--deep-ink);transition:border-color .15s;">
+          <input type="checkbox" id="rolePaid" value="paid" style="width:18px;height:18px;accent-color:var(--sky);">
+          <span style="color:var(--cream);">Paid</span>
+          <span style="color:#5a8aaa;font-size:11px;margin-left:auto;">Level 2</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:#1b3455;border:2px solid var(--deep-ink);transition:border-color .15s;">
+          <input type="checkbox" id="roleModerator" value="moderator" style="width:18px;height:18px;accent-color:var(--sky);">
+          <span style="color:var(--cream);">Moderator</span>
+          <span style="color:#5a8aaa;font-size:11px;margin-left:auto;">Level 3</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:#1b3455;border:2px solid var(--deep-ink);transition:border-color .15s;">
+          <input type="checkbox" id="roleAdmin" value="admin" style="width:18px;height:18px;accent-color:var(--sky);">
+          <span style="color:var(--cream);">Admin</span>
+          <span style="color:#5a8aaa;font-size:11px;margin-left:auto;">Level 4</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:#1b3455;border:2px solid var(--deep-ink);transition:border-color .15s;">
+          <input type="checkbox" id="roleSpecialAdmin" value="special_admin" style="width:18px;height:18px;accent-color:var(--sky);">
+          <span style="color:var(--cream);">Special Admin</span>
+          <span style="color:#5a8aaa;font-size:11px;margin-left:auto;">Level 5</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:#1b3455;border:2px solid var(--deep-ink);transition:border-color .15s;">
+          <input type="checkbox" id="roleOwner" value="owner" style="width:18px;height:18px;accent-color:var(--sky);">
+          <span style="color:var(--cream);">Owner</span>
+          <span style="color:#5a8aaa;font-size:11px;margin-left:auto;">Level 6</span>
+        </label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" id="cancelRoleAssignBtn" type="button">CANCEL</button>
+      <button class="btn-primary" id="saveRoleAssignBtn" type="button">SAVE ROLES</button>
+    </div>
+  </div>
+</div>
+
 <!-- Flag Username Modal -->
 <div class="modal-overlay" id="flagUsernameModal" hidden>
   <div class="modal-card" style="max-width:450px;">
@@ -856,8 +919,8 @@ select.form-control{cursor:pointer}
 <div class="admin-guard-overlay" id="adminGuard" style="display:none;">
   <div class="admin-guard-card">
     <h2>RESTRICTED AREA</h2>
-    <p>You must be logged in as an authorized Guild Master (Admin) to access this dashboard.</p>
-    <button class="btn-primary" id="guardSignInBtn">Sign In As Admin</button>
+    <p>You must be the Owner to access this panel.</p>
+    <button class="btn-primary" id="guardSignInBtn">Sign In As Owner</button>
   </div>
 </div>
 
@@ -908,7 +971,7 @@ if(overlay) overlay.onclick=closeMenu;
 // --- Main Tab Switching ---
 window.activeStatusFilter = 'pending';
 window.currentReviewEntry = null;
-window.canCreateQuests = false;
+window.canCreateQuests = true;
 
 window.switchMainTab = function(tab) {
   document.querySelectorAll('.mod-tab').forEach(t => t.classList.toggle('active', t.dataset.maintab === tab));
@@ -920,6 +983,7 @@ window.switchMainTab = function(tab) {
   if (tab === 'penalties' && typeof window.loadPenalties === 'function') window.loadPenalties();
   if (tab === 'activity' && typeof window.loadActivityLog === 'function') window.loadActivityLog();
   if (tab === 'stats' && typeof window.loadDetailedStats === 'function') window.loadDetailedStats();
+  if (tab === 'roles' && typeof window.loadRoleManagement === 'function') window.loadRoleManagement();
   if (tab === 'adjust') { document.getElementById('adjustSearchInput')?.focus(); }
   if (tab === 'settings' && typeof window.loadSiteSettings === 'function') window.loadSiteSettings();
 };
@@ -944,7 +1008,6 @@ document.getElementById('filterAI').addEventListener('change', () => { if (typeo
 document.getElementById('filterSort').addEventListener('change', () => { if (typeof window.renderModQueue === 'function') window.renderModQueue(); });
 document.getElementById('searchBar').addEventListener('input', () => { if (typeof window.renderModQueue === 'function') window.renderModQueue(); });
 document.getElementById('userSearchBar').addEventListener('input', () => { if (typeof window.renderUserList === 'function') window.renderUserList(); });
-document.getElementById('userRoleFilter')?.addEventListener('change', () => { if (typeof window.renderUserList === 'function') window.renderUserList(); });
 document.getElementById('penaltySearchBar').addEventListener('input', () => { if (typeof window.renderPenaltyList === 'function') window.renderPenaltyList(); });
 document.getElementById('penaltyFilter').addEventListener('change', () => { if (typeof window.renderPenaltyList === 'function') window.renderPenaltyList(); });
 document.getElementById('activityFilter').addEventListener('change', () => { if (typeof window.renderActivityLog === 'function') window.renderActivityLog(); });
@@ -1373,29 +1436,20 @@ var adminGuard = document.getElementById('adminGuard');
 var adminPage = document.querySelector('.admin-page');
 
 window.onAuthReady = function(role) {
-  var allowed = (role === 'admin' || role === 'special_admin' || role === 'owner');
+  var allowed = (role === 'owner');
   if (!allowed) {
     if (adminGuard) adminGuard.style.display = '';
     if (adminPage) adminPage.style.display = 'none';
   } else {
     if (adminGuard) adminGuard.style.display = 'none';
     if (adminPage) adminPage.style.display = '';
-    var canCreate = (role === 'special_admin' || role === 'owner');
-    window.canCreateQuests = canCreate;
-    var toggleBtn = document.getElementById('toggleCreateBtn');
-    if (!canCreate && toggleBtn) {
-      toggleBtn.disabled = true;
-      toggleBtn.textContent = 'SPECIAL ADMIN ONLY';
-      toggleBtn.title = 'Only Special Admins can create quests';
-    }
-    var adjustTab = document.querySelector('[data-maintab="adjust"]');
-    if (adjustTab) adjustTab.style.display = canCreate ? '' : 'none';
+    window.canCreateQuests = true;
   }
 };
 
 // Fallback: if auth.js already loaded before this script ran
 setTimeout(function() {
-  if (window.userRole && window.userRole !== 'admin' && window.userRole !== 'special_admin' && window.userRole !== 'owner') {
+  if (window.userRole && window.userRole !== 'owner') {
     if (adminGuard) adminGuard.style.display = '';
     if (adminPage) adminPage.style.display = 'none';
   }
@@ -1423,6 +1477,7 @@ if (guardSignInBtn) {
 <script type="module" src="js/notifications.js"></script>
 <script type="module" src="js/admin.js"></script>
 <script type="module" src="js/moderator.js"></script>
+<script type="module" src="js/owner.js"></script>
 <script type="module" src="js/adjustUser.js"></script>
 <script type="module" src="js/achievements.js"></script>
 <script type="module" src="js/streak.js"></script>

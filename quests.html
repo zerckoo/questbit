@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Side Quest | Quests</title>
+<title>QuestBit | Quests</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="Icons/Backpack.jpg">
 <style>
 :root{--ink:#203b60;--deep-ink:#0b1b31;--sky:#77cfef;--cream:#dce7f3;--orange:#91d7f0}
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silkscreen",monospace}
 .navbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 34px;background:var(--ink);border-bottom:3px solid var(--deep-ink)}
-.nav-left,.profile-overview,.right-section{display:flex;align-items:center}
-.nav-left{gap:9px}.profile-overview{gap:9px;min-width:235px}.profile-avatar{width:46px;height:46px;background:linear-gradient(135deg,#d87850 0 38%,#f3ba63 38% 62%,#3d9a83 62%);border:2px solid var(--deep-ink)}
-.profile-info{flex:1}.username{color:var(--cream);font-weight:700}.level{margin:0 0 3px;font-size:12px}.xp-bar{height:14px;overflow:hidden;background:var(--deep-ink);border:2px solid var(--deep-ink)}.xp-fill{width:68%;height:100%;background:var(--sky)}
+.nav-left,.right-section{display:flex;align-items:center}
+.nav-left{gap:9px}.profile-overview{display:flex;align-items:center;gap:9px;min-width:235px;position:relative;cursor:pointer;padding:6px 8px;border:2px solid transparent;transition:border-color .15s,background .15s}.profile-overview:hover{border-color:#304d70;background:rgba(48,77,104,.15)}.profile-avatar{width:46px;height:46px;background:linear-gradient(135deg,#d87850 0 38%,#f3ba63 38% 62%,#3d9a83 62%);background-size:cover;background-position:center;border:2px solid var(--deep-ink)}
+.profile-info{flex:1}.username{color:var(--cream);font-weight:700}.level{margin:0 0 3px;font-size:12px}.xp-bar{width:100%;height:18px;overflow:hidden;background:var(--deep-ink);border:2px solid var(--deep-ink)}.xp-fill{width:68%;height:100%;background:var(--sky)}.xp-row{display:flex;align-items:center;gap:8px}.level-badge{color:var(--sky);font-size:11px;font-weight:700;white-space:nowrap}
 .nav-links{display:flex;gap:32px}.nav-links a{padding:4px 0;color:#fff;border-bottom:2px solid transparent;text-decoration:none;font-size:16px}.nav-links a:hover,.nav-links a.active{color:var(--sky);border-color:var(--sky)}
-.right-section{gap:18px}.qp{padding:10px 13px;color:var(--cream);background:#132b48;border:2px solid #071426}.qp[hidden],.user-avatar[hidden]{display:none}.signin-btn{padding:9px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:inherit}.user-avatar{width:40px;height:40px;color:var(--cream);background:#345275;border:2px solid var(--deep-ink);cursor:pointer;font:18px "Silkscreen",monospace}.profile-dropdown-wrap{position:relative}.profile-dropdown-wrap[hidden]{display:none}.profile-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.profile-dropdown.open{display:block}.dropdown-item{display:block;width:100%;padding:11px 16px;color:var(--cream);background:none;border:none;border-bottom:2px solid var(--deep-ink);border-radius:0;text-align:left;cursor:pointer;font:inherit;text-decoration:none;transition:background .12s,color .12s}.dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#304768;color:var(--sky)}.dropdown-danger{color:#ff6b6b}.dropdown-danger:hover{background:#3a1520;color:#ff6b6b}
-.menu-btn{display:none;color:var(--cream);background:none;border:0;cursor:pointer;font:20px "Silkscreen",monospace}.sidebar{position:fixed;z-index:5;top:0;left:-260px;width:250px;height:100%;padding-top:75px;background:var(--ink);border-right:3px solid var(--deep-ink);transition:.3s}.sidebar.active{left:0}.sidebar a{display:block;padding:16px 24px;color:var(--cream);border-bottom:2px solid #304d70;text-decoration:none}.sidebar a:hover{color:var(--sky);background:#304768}.overlay{position:fixed;z-index:4;inset:0;display:none;background:rgba(10,27,49,.65)}.overlay.active{display:block}
+.right-section{gap:18px}.qp{padding:10px 13px;color:var(--cream);background:#132b48;border:2px solid #071426}.qp[hidden],.user-avatar[hidden]{display:none}.signin-btn{padding:9px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:inherit}.user-avatar{width:40px;height:40px;color:var(--cream);background:#345275;border:2px solid var(--deep-ink);cursor:pointer;font:18px "Silkscreen",monospace}.profile-dropdown-wrap{position:relative}.profile-dropdown-wrap[hidden]{display:none}.profile-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.profile-dropdown.open{display:block}.dropdown-item{display:block;width:100%;padding:11px 16px;color:var(--cream);background:none;border:none;border-bottom:2px solid var(--deep-ink);border-radius:0;text-align:left;cursor:pointer;font:inherit;text-decoration:none;transition:background .12s,color .12s}.dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#304768;color:var(--sky)}.dropdown-danger{color:#ff6b6b}.dropdown-danger:hover{background:#3a1520;color:#ff6b6b}.left-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.left-dropdown.open{display:block}
+.menu-btn{display:none;color:var(--cream);background:none;border:0;cursor:pointer;font:20px "Silkscreen",monospace}.sidebar{position:fixed;z-index:5;top:0;left:-260px;width:250px;height:100%;padding-top:75px;background:var(--ink);border-right:3px solid var(--deep-ink);transition:.3s}.sidebar.active{left:0}.sidebar a{display:block;padding:16px 24px;color:var(--cream);border-bottom:2px solid #304d70;text-decoration:none}.sidebar a:hover,.sidebar a.active{color:var(--sky);background:#304768}.overlay{position:fixed;z-index:4;inset:0;display:none;background:rgba(10,27,49,.65)}.overlay.active{display:block}
 .quests-page{min-height:calc(100vh - 72px)}
 .quest-board{max-width:1260px;margin:0 auto;padding:48px 28px 70px}.board-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}.quest-board h1{color:#f1f6fa;font-size:clamp(32px,5vw,52px);letter-spacing:1px}
 
@@ -223,8 +224,9 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
   border-top: 2px solid #304d70;
 }
 .quest-list.grid-view .quest-tooltip{display:none!important}
+.quest-list.grid-view .saved-star-badge{position:absolute;top:8px;left:8px}
 
-.quest-detail-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.quest-detail-modal[hidden]{display:none}.quest-detail-card{display:flex;flex-direction:column;width:min(100%,680px);max-height:90vh;overflow:auto;padding:22px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426}.quest-detail-top{display:grid;grid-template-columns:210px 1fr;gap:24px}.quest-detail-image{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #08182b;image-rendering:pixelated}.quest-detail-title{color:#f1f6fa;font-size:27px;line-height:1.35;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky)}.quest-detail-meta{display:flex;flex-wrap:wrap;gap:15px;margin:13px 0 19px;color:var(--sky);font-size:13px;line-height:1.6}.detail-meta-item{padding-bottom:2px;border-bottom:2px solid var(--sky)}.detail-cost{color:#f1f6fa}.detail-biome{color:#9bdcf4}.quest-detail-description{color:#c4d9e6;font-size:15px;line-height:1.6}
+.quest-detail-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.quest-detail-modal[hidden]{display:none}.quest-detail-card{display:flex;flex-direction:column;width:min(100%,780px);max-height:90vh;overflow:auto;padding:22px 26px 22px 22px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;overflow-wrap:break-word;word-wrap:break-word}.quest-detail-top{display:grid;grid-template-columns:210px 1fr;gap:24px}.quest-detail-image{width:100%;aspect-ratio:1/1;object-fit:cover;border:3px solid #08182b;image-rendering:pixelated}.quest-detail-title{color:#f1f6fa;font-size:27px;line-height:1.35;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky)}.quest-detail-meta{display:flex;flex-wrap:wrap;gap:15px;margin:13px 0 19px;color:var(--sky);font-size:13px;line-height:1.6}.detail-meta-item{padding-bottom:2px;border-bottom:2px solid var(--sky)}.detail-cost{color:#f1f6fa}.detail-biome{color:#9bdcf4}.quest-detail-description{color:#c4d9e6;font-size:15px;line-height:1.6}
 
 .quest-detail-actions{display:flex;justify-content:space-between;gap:12px;margin-top:27px}
 
@@ -282,6 +284,9 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
   cursor: not-allowed;
   transform: none !important;
 }
+
+/* Roll Quest Modal */
+.roll-modal-card{display:flex;flex-direction:column;align-items:center;width:min(100%,480px);max-height:90vh;overflow:auto;padding:32px 28px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative;text-align:center}.roll-modal-header{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px}.roll-modal-header h2{color:#f1f6fa;font-size:22px;letter-spacing:1px;border-bottom:2px solid var(--sky);padding-bottom:6px}.roll-modal-die{width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.roll-modal-desc{color:#b8d0e2;font-size:14px;line-height:1.6;margin-bottom:20px;max-width:380px}.roll-modal-desc strong{color:var(--sky)}.roll-pips{display:flex;gap:10px;margin-bottom:14px}.roll-pip{width:28px;height:28px;border:3px solid #0b1b31;background:#132b48;border-radius:50%;transition:background .3s,box-shadow .3s}.roll-pip.active{background:var(--sky);box-shadow:0 0 8px rgba(119,207,239,.45)}.roll-timer-row{margin-bottom:22px}.roll-timer-text{color:#5a7f9a;font-size:12px}.roll-modal-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;color:#102642;background:var(--sky);border:3px solid #08182b;box-shadow:4px 4px 0 #08182b;cursor:pointer;font:700 18px "Silkscreen",monospace;transition:transform .12s,box-shadow .12s,opacity .15s}.roll-modal-btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 #08182b}.roll-modal-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:4px 4px 0 #08182b!important}.roll-modal-btn:disabled .quest-die{animation:none!important}.roll-modal-no-rolls{color:#ff6b6b;font-size:13px;margin-top:12px;display:none}.roll-modal-no-rolls[hidden]{display:none}.roll-anim-overlay{position:fixed;z-index:50;inset:0;display:grid;place-items:center;background:rgba(7,18,35,.88)}.roll-anim-overlay[hidden]{display:none}.roll-anim-card{display:flex;flex-direction:column;align-items:center;gap:20px;padding:48px 40px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426}.roll-dice-container{width:80px;height:80px;display:grid;place-items:center;background:#132b48;border:3px solid var(--sky);border-radius:50%;box-shadow:0 0 20px rgba(119,207,239,.3);animation:pulse-glow 1.2s ease-in-out infinite}.roll-dice-spin{width:50px;height:50px;object-fit:contain;image-rendering:pixelated;animation:spin-dice .8s linear infinite}.roll-anim-text{color:var(--sky);font-size:16px;font-weight:700;letter-spacing:1px;animation:text-blink 1.2s ease-in-out infinite}@keyframes spin-dice{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(119,207,239,.3)}50%{box-shadow:0 0 35px rgba(119,207,239,.6)}}@keyframes text-blink{0%,100%{opacity:1}50%{opacity:.5}}
 
 .close-detail{
   align-self:flex-end;
@@ -385,43 +390,84 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
 @media(max-width:600px){.quest-results-heading h2{font-size:18px}.quest-list-item{grid-template-columns:38px minmax(0,1fr);gap:10px}.quest-list-image{width:38px;height:38px}.quest-list-title{font-size:13px}.quest-list-summary{grid-column:2/span 2;font-size:11px}.quest-list-meta{display:none}.quest-tooltip{display:none!important}.quest-detail-top{grid-template-columns:1fr}.quest-detail-image{max-width:210px}.quest-detail-title{font-size:22px}.quest-detail-description{font-size:14px}}
 @media(max-width:900px){.quest-list.grid-view{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.results-controls{gap:8px}.quest-count{font-size:11px}.quest-list.grid-view{grid-template-columns:1fr}}
+.form-control{width:100%;padding:10px;background:#173452;color:var(--cream);border:2px solid var(--deep-ink);font:inherit;outline:none}.form-control:focus{border-color:var(--sky)}
+.proof-drop-zone{border:2px dashed #304d70;padding:24px;text-align:center;color:#7a9bb5;cursor:pointer;transition:border-color .15s,background .15s}.proof-drop-zone:hover,.proof-drop-zone.drag-over{border-color:var(--sky);background:rgba(119,207,239,.06)}
+.proof-info{padding:12px;background:#173452;border:2px solid var(--deep-ink);margin-bottom:18px}
+.proof-info strong{color:var(--sky)}
+.rejection-box{padding:12px;background:#3a1520;border:2px solid #ff6b6b;margin-bottom:18px;color:#ff6b6b;font-size:13px}
+.notif-wrap{position:relative}.notif-wrap[hidden]{display:none}.notif-btn{position:relative;width:40px;height:40px;padding:0;background:#132b48;border:2px solid #071426;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}.notif-btn:hover{background:#1b3f63}.notif-btn img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) invert(0.85)}.notif-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;background:#ff6b6b;color:#fff;border:2px solid var(--deep-ink);font:700 10px "Silkscreen",monospace;display:flex;align-items:center;justify-content:center;line-height:1}.notif-badge[hidden]{display:none}.notif-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:420px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:200;overflow:hidden}.notif-dropdown.open{display:flex;flex-direction:column}.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;color:var(--sky)}.notif-clear{background:none;border:0;color:var(--cream);font:700 11px "Silkscreen",monospace;cursor:pointer;opacity:.7;transition:opacity .15s}.notif-clear:hover{opacity:1;color:var(--sky)}.notif-list{overflow-y:auto;flex:1}.notif-item{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid #1a3050;font-size:12px;color:var(--cream);cursor:pointer;transition:background .12s}.notif-item:hover{background:#18304d}.notif-item.unread{background:#132a47}.notif-item.unread:hover{background:#1a3458}.notif-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#1b3f63;border:2px solid var(--deep-ink);font-size:14px}.notif-body{flex:1;min-width:0}.notif-text{margin:0;line-height:1.35;color:#c4d9e6}.notif-text strong{color:var(--sky)}.notif-time{margin-top:3px;color:#5a7f9a;font-size:10px}.notif-empty{padding:24px;text-align:center;color:#5a7f9a;font-size:12px}
+.ach-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.ach-modal[hidden]{display:none}.ach-card-wrap{width:min(100%,780px);max-height:88vh;overflow:auto;padding:26px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative}.ach-card-wrap .close-detail{position:absolute;top:22px;right:17px}.ach-title{color:#f1f6fa;font-size:24px;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky);margin-bottom:20px}.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.ach-card{padding:16px;border:2px solid #1a2a40;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.ach-icon{font-size:28px;line-height:1}.ach-name{color:#f1f6fa;font-size:13px;font-weight:700}.ach-desc{color:#8aabc4;font-size:11px;line-height:1.35}
+.streak-badge{display:flex;align-items:center;gap:4px;padding:3px 8px 3px 5px;background:#2d1050;border:2px solid #7c3aed;flex-shrink:0}.streak-badge.inactive{background:#1a1a2e;border-color:#374151}.streak-badge.inactive img{filter:grayscale(1) brightness(.6)}.streak-badge img{width:16px;height:16px;object-fit:contain;image-rendering:pixelated}.streak-badge span{color:#ffb347;font-size:12px;font-weight:700;line-height:1}.streak-badge.inactive span{color:#6b7280}
+.site-footer{text-align:center;padding:24px 20px;border-top:2px solid var(--deep-ink);color:#5a7f9a;font-size:12px;background:var(--ink)}
+*{scrollbar-width:thin;scrollbar-color:rgba(119,207,239,.45) transparent}
+*::-webkit-scrollbar{width:6px;height:6px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(119,207,239,.45);border-radius:3px}
+*::-webkit-scrollbar-thumb:hover{background:rgba(119,207,239,.7)}
 </style>
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
 <div class="sidebar" id="sidebar">
-  <a href="main.html">[H] Home</a>
-  <a href="quests.html">[Q] Quests</a>
-  <a href="#">[W] World</a>
-  <a href="#">[R] Rankings</a>
-  <a href="#">[C] Community</a>
+  <a href="main.html">Home</a>
+  <a href="quests.html" class="active">Quests</a>
+  <a href="world.html">World</a>
+  <a href="rankings.html">Rankings</a>
+  <a href="store.html">Store</a>
 </div>
 <nav class="navbar">
   <div class="nav-left">
     <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">&#9776;</button>
-    <div class="profile-overview">
-      <div class="profile-avatar"></div>
+    <div class="profile-overview" id="profileOverview">
+      <div class="profile-avatar" id="navAvatar"></div>
       <div class="profile-info">
-        <div class="username">LVL 1 WAYFARER</div>
-        <div class="level">ADVENTURER</div>
-        <div class="xp-bar"><div class="xp-fill"></div></div>
+        <div class="username" id="navUsername">GUEST</div>
+        <div class="level" id="navTitle">Adventurer</div>
+        <div class="xp-row">
+          <div class="xp-bar"><div class="xp-fill" id="navXpFill" style="width:0%"></div></div>
+          <span class="level-badge" id="navLevel">LV 0</span>
+        </div>
+      </div>
+      <div class="streak-badge inactive" id="navStreak">
+        <img src="Icons/fire.jfif" alt="Streak">
+        <span id="navStreakCount">0</span>
+      </div>
+      <div class="left-dropdown" id="leftProfileDropdown">
+        <a href="#" class="dropdown-item" id="achBtn">&#127942; Achievements</a>
       </div>
     </div>
   </div>
   <div class="nav-links">
     <a href="main.html">Home</a>
     <a class="active" href="quests.html">Quests</a>
-    <a href="#">World</a>
-    <a href="#">Rankings</a>
-    <a href="#">Community</a>
+    <a href="world.html">World</a>
+    <a href="rankings.html">Rankings</a>
+    <a href="store.html">Store</a>
   </div>
   <div class="right-section">
-    <div class="qp" id="qpBalance" hidden>&#9679; 0 GP</div>
+    <div class="notif-wrap" id="notifWrap" hidden>
+      <button class="notif-btn" id="notifBtn" type="button" title="Notifications">
+        <img src="Icons/bells.jfif" alt="Notifications">
+        <span class="notif-badge" id="notifBadge" hidden>0</span>
+      </button>
+      <div class="notif-dropdown" id="notifDropdown">
+        <div class="notif-header">
+          <span>NOTIFICATIONS</span>
+          <button class="notif-clear" id="notifClearAll" type="button">CLEAR ALL</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="notif-empty">No notifications yet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="qp" id="qpBalance" hidden>&#9679; 0 QC</div>
     <div class="profile-dropdown-wrap" id="profileDropdownWrap" hidden>
       <button class="user-avatar" id="signoutBtn" type="button" title="Profile" aria-label="Profile menu"></button>
       <div class="profile-dropdown" id="profileDropdown">
-        <a href="#" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+        <a href="settings.html" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+        <a href="owner.html" class="dropdown-item" id="dropdownOwner" style="display: none;">&#9873; Owner Panel</a>
         <a href="admin.html" class="dropdown-item" id="dropdownAdmin" style="display: none;">&#9876; Admin Dashboard</a>
+        <a href="moderator.html" class="dropdown-item" id="dropdownModerator" style="display: none;">&#9876; Moderator Panel</a>
         <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
       </div>
     </div>
@@ -474,7 +520,7 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
           <span class="biome-name">Snow</span>
         </button>
         <button class="filter-tab active" type="button" data-biome="all" title="All Biomes">
-          <img src="Images/Moonlit%20Sky%208%20bit.jfif" alt="All">
+          <img src="Icons/world.png" alt="All">
           <span class="biome-name">All Biomes</span>
         </button>
       </div>
@@ -527,6 +573,36 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
     <div class="quest-detail-actions">
       <button class="save-quest" id="saveQuestBtn" type="button">★ SAVE QUEST</button>
       <button class="accept-quest" id="acceptQuestBtn" type="button">✔ ACCEPT QUEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- Roll Quest Modal -->
+<div class="quest-detail-modal" id="rollQuestModal" hidden>
+  <div class="roll-modal-card">
+    <button class="close-detail" id="closeRollModal" type="button" aria-label="Close modal">&#10005;</button>
+    <div class="roll-modal-header"><img class="roll-modal-die" src="Icons/Dice.jfif" alt=""><h2>ROLL A QUEST</h2></div>
+    <p class="roll-modal-desc">You have <strong id="rollRemainingText">5</strong> rolls remaining. You gain 1 roll every 2 hours and 24 minutes. Rolls recharge automatically over time.</p>
+    <div class="roll-pips" id="rollPips"><span class="roll-pip active"></span><span class="roll-pip active"></span><span class="roll-pip active"></span><span class="roll-pip active"></span><span class="roll-pip active"></span></div>
+    <div class="roll-timer-row"><span class="roll-timer-text" id="rollTimerText">Next roll in: --:--</span></div>
+    <button class="roll-modal-btn" id="rollModalBtn" type="button"><img class="quest-die" src="Icons/Dice.jfif" alt="">ROLL!</button>
+    <p class="roll-modal-no-rolls" id="rollNoRolls" hidden>No rolls left. Wait for them to recharge!</p>
+  </div>
+</div>
+<div class="roll-anim-overlay" id="rollAnimOverlay" hidden>
+  <div class="roll-anim-card"><div class="roll-dice-container"><img class="roll-dice-spin" src="Icons/Dice.jfif" alt=""></div><p class="roll-anim-text">Finding your quest...</p></div>
+</div>
+
+<!-- Sign In Required Modal -->
+<div class="quest-detail-modal" id="signInRequiredModal" hidden>
+  <div class="quest-detail-card" style="max-width:480px;text-align:center">
+    <button class="close-detail" id="closeSignInRequiredBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color:var(--sky);color:#f1f6fa;margin-bottom:16px">SIGN IN REQUIRED</h2>
+    <p style="color:#c4d9e6;font-size:14px;line-height:1.6;margin-bottom:24px">
+      You must be signed in before you can <strong style="color:var(--sky)" id="signInActionWord">accept or save</strong> quests. Sign in to start your adventure!
+    </p>
+    <div style="display:flex;justify-content:center;gap:12px">
+      <button class="btn-green" id="signInRequiredBtn" type="button">SIGN IN</button>
     </div>
   </div>
 </div>
@@ -586,12 +662,77 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
     <button class="close-detail" id="closeCancelModalBtn" type="button" aria-label="Close modal">&#10005;</button>
     <h2 class="quest-detail-title" style="border-bottom-color: #ff6b6b; color: #ff6b6b; margin-bottom: 16px;">CANCEL QUEST?</h2>
     <p style="color: #c4d9e6; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
-      Are you sure you want to cancel this quest?
+      Cancelling this quest will <strong style="color:#ff6b6b;">deduct 100 coins</strong> from your balance. Are you sure you want to proceed?
     </p>
     <div style="display: flex; justify-content: center; gap: 14px;">
-      <button class="btn-red" id="confirmCancelBtn" type="button">CONFIRM CANCEL</button>
-      <button class="btn-green" id="abortCancelBtn" type="button">KEEP QUEST</button>
+      <button class="btn-red" id="confirmCancelBtn" type="button">YES, CANCEL (-100 COINS)</button>
+      <button class="btn-green" id="abortCancelBtn" type="button">NO, KEEP QUEST</button>
     </div>
+  </div>
+</div>
+
+<!-- Remove Saved Quest Confirmation Modal -->
+<div class="quest-detail-modal" id="removeSavedConfirmModal" hidden>
+  <div class="quest-detail-card" style="max-width: 500px; text-align: center;">
+    <button class="close-detail" id="closeRemoveSavedModalBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color: #ff6b6b; color: #ff6b6b; margin-bottom: 16px;">REMOVE SAVED QUEST?</h2>
+    <p style="color: #c4d9e6; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
+      This quest will be removed from your saved list. You can always save it again later from the quest board.
+    </p>
+    <div style="display: flex; justify-content: center; gap: 14px;">
+      <button class="btn-red" id="confirmRemoveSavedBtn" type="button">YES, REMOVE</button>
+      <button class="btn-green" id="abortRemoveSavedBtn" type="button">NO, KEEP IT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quest Verification / Proof Submission Modal -->
+<div class="quest-detail-modal" id="verificationModal" hidden>
+  <div class="quest-detail-card" style="max-width:560px;">
+    <button class="close-detail" id="closeVerificationBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color:var(--sky);color:#f1f6fa;margin-bottom:16px;">SUBMIT PROOF</h2>
+    <p id="verificationSubtitle" style="color:#c4d9e6;font-size:14px;line-height:1.6;margin-bottom:18px;">Write a note to describe how you completed this quest. Your submission will be reviewed by a moderator.</p>
+    <div class="proof-info" id="verificationQuestInfo"></div>
+    <div id="verificationRejection" style="display:none;" class="rejection-box"></div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;color:var(--sky);margin-bottom:6px;font-size:13px;">PROOF DESCRIPTION</label>
+      <textarea id="proofNoteInput" class="form-control" placeholder="Describe what you did to complete this quest..." style="min-height:120px;resize:vertical;"></textarea>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="display:block;color:var(--sky);margin-bottom:6px;font-size:13px;">PHOTO PROOF (OPTIONAL)</label>
+      <input id="proofImageInput" type="file" accept="image/*" capture="environment" style="display:block;width:100%;padding:10px 12px;border-radius:8px;background:#13253d;color:#f1f6fa;border:1px solid rgba(255,255,255,0.16);">
+      <div id="proofImagePreviewWrap" style="margin-top:10px;display:none;">
+        <img id="proofImagePreview" src="" alt="Proof preview" style="max-width:100%;max-height:220px;border-radius:10px;border:2px solid rgba(255,255,255,0.2);object-fit:cover;">
+      </div>
+      <div id="proofImageStatus" style="margin-top:8px;color:#8bc7ff;font-size:12px;">Choose a photo to attach as proof.</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:12px;">
+      <button class="btn-red" id="cancelProofBtn" type="button">CANCEL</button>
+      <button class="btn-green" id="submitProofBtn" type="button">SUBMIT FOR REVIEW</button>
+    </div>
+  </div>
+</div>
+
+<!-- Instant Reward Notice Modal (shown when instant rewards are enabled) -->
+<div class="quest-detail-modal" id="instantRewardNoticeModal" hidden>
+  <div class="quest-detail-card" style="max-width:540px;">
+    <button class="close-detail" id="closeInstantRewardBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="quest-detail-title" style="border-bottom-color:var(--sky);color:#f1f6fa;margin-bottom:16px;">INSTANT REWARDS</h2>
+    <p style="color:#c4d9e6;font-size:14px;line-height:1.6;margin-bottom:14px;">Your rewards have been granted immediately so you can continue your adventure without waiting.</p>
+    <p style="color:#c4d9e6;font-size:14px;line-height:1.6;margin-bottom:20px;">Your proof will still be reviewed by a moderator. If it doesn't meet the quest requirements or is found to be false, the rewards will be removed and the quest will become available to complete again.</p>
+    <div style="display:flex;justify-content:flex-end;gap:12px;">
+      <button class="btn-red" id="cancelInstantRewardBtn" type="button">CANCEL</button>
+      <button class="btn-green" id="acceptInstantRewardBtn" type="button">I UNDERSTAND — CONTINUE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Achievements Modal -->
+<div class="ach-modal" id="achModal" hidden>
+  <div class="ach-card-wrap">
+    <button class="close-detail" id="achCloseBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="ach-title">ACHIEVEMENTS</h2>
+    <div class="ach-grid" id="achievementGrid"></div>
   </div>
 </div>
 
@@ -600,7 +741,11 @@ body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silks
 
 <!-- JS Core Imports -->
 <script type="module" src="js/auth.js"></script>
+<script type="module" src="js/notifications.js"></script>
 <script type="module" src="js/quests.js"></script>
+<script type="module" src="js/achievements.js"></script>
+<script type="module" src="js/streak.js"></script>
+<script src="js/nocopy.js"></script>
 
 <script>
 // UI Nav Controls & Modals Toggle
@@ -683,6 +828,13 @@ const cancelConfirmModal = document.getElementById('cancelConfirmModal');
 if (closeCancelModalBtn) closeCancelModalBtn.onclick = () => cancelConfirmModal.hidden = true;
 if (abortCancelBtn) abortCancelBtn.onclick = () => cancelConfirmModal.hidden = true;
 
+// Remove Saved Quest Modal
+const removeSavedConfirmModal = document.getElementById('removeSavedConfirmModal');
+const closeRemoveSavedModalBtn = document.getElementById('closeRemoveSavedModalBtn');
+const abortRemoveSavedBtn = document.getElementById('abortRemoveSavedBtn');
+if (closeRemoveSavedModalBtn) closeRemoveSavedModalBtn.onclick = () => removeSavedConfirmModal.hidden = true;
+if (abortRemoveSavedBtn) abortRemoveSavedBtn.onclick = () => removeSavedConfirmModal.hidden = true;
+
 // Filter Tab Handlers with Active Class State Updating
 const filterTabs = document.querySelectorAll('.filter-tab');
 const savedBiome = localStorage.getItem('selectedBiome') || 'all';
@@ -723,5 +875,6 @@ costTabs.forEach(tab => {
 });
 </script>
 
+<footer class="site-footer">Icons and art by leovolpozzz</footer>
 </body>
 </html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuestBit | Rankings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="Icons/Backpack.jpg">
+<style>
+:root{--ink:#203b60;--deep-ink:#0b1b31;--sky:#77cfef;--cream:#dce7f3;--orange:#91d7f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--cream);background:#102642;font:14px/1.2 "Silkscreen",monospace;display:flex;flex-direction:column}
+.navbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 34px;background:var(--ink);border-bottom:3px solid var(--deep-ink)}
+.nav-left,.right-section{display:flex;align-items:center}
+.nav-left{gap:9px}.profile-overview{display:flex;align-items:center;gap:9px;min-width:235px;position:relative;cursor:pointer;padding:6px 8px;border:2px solid transparent;transition:border-color .15s,background .15s}.profile-overview:hover{border-color:#304d70;background:rgba(48,77,104,.15)}.profile-avatar{width:46px;height:46px;background:linear-gradient(135deg,#d87850 0 38%,#f3ba63 38% 62%,#3d9a83 62%);background-size:cover;background-position:center;border:2px solid var(--deep-ink)}
+.profile-info{flex:1}.username{color:var(--cream);font-weight:700}.level{margin:0 0 3px;font-size:12px}.xp-bar{width:100%;height:18px;overflow:hidden;background:var(--deep-ink);border:2px solid var(--deep-ink)}.xp-fill{width:68%;height:100%;background:var(--sky)}.xp-row{display:flex;align-items:center;gap:8px}.level-badge{color:var(--sky);font-size:11px;font-weight:700;white-space:nowrap}
+.streak-badge{display:flex;align-items:center;gap:4px;padding:3px 8px 3px 5px;background:#2d1050;border:2px solid #7c3aed;flex-shrink:0}.streak-badge.inactive{background:#1a1a2e;border-color:#374151}.streak-badge.inactive img{filter:grayscale(1) brightness(.6)}.streak-badge img{width:16px;height:16px;object-fit:contain;image-rendering:pixelated}.streak-badge span{color:#ffb347;font-size:12px;font-weight:700;line-height:1}.streak-badge.inactive span{color:#6b7280}
+.nav-links{display:flex;gap:32px}.nav-links a{padding:4px 0;color:#fff;border-bottom:2px solid transparent;text-decoration:none;font-size:16px}.nav-links a:hover,.nav-links a.active{color:var(--sky);border-color:var(--sky)}
+.right-section{gap:18px}.qp{padding:10px 13px;color:var(--cream);background:#132b48;border:2px solid #071426}.qp[hidden],.user-avatar[hidden]{display:none}.signin-btn{padding:9px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:inherit}.user-avatar{width:40px;height:40px;color:var(--cream);background:#345275;border:2px solid var(--deep-ink);cursor:pointer;font:18px "Silkscreen",monospace}.profile-dropdown-wrap{position:relative}.profile-dropdown-wrap[hidden]{display:none}.profile-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.profile-dropdown.open{display:block}.dropdown-item{display:block;width:100%;padding:11px 16px;color:var(--cream);background:none;border:none;border-bottom:2px solid var(--deep-ink);border-radius:0;text-align:left;cursor:pointer;font:inherit;text-decoration:none;transition:background .12s,color .12s}.dropdown-item:last-child{border-bottom:none}.dropdown-item:hover{background:#304768;color:var(--sky)}.dropdown-danger{color:#ff6b6b}.dropdown-danger:hover{background:#3a1520;color:#ff6b6b}.left-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:200px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:100}.left-dropdown.open{display:block}
+.menu-btn{display:none;color:var(--cream);background:none;border:0;cursor:pointer;font:20px "Silkscreen",monospace}.sidebar{position:fixed;z-index:5;top:0;left:-260px;width:250px;height:100%;padding-top:75px;background:var(--ink);border-right:3px solid var(--deep-ink);transition:.3s}.sidebar.active{left:0}.sidebar a{display:block;padding:16px 24px;color:var(--cream);border-bottom:2px solid #304d70;text-decoration:none}.sidebar a:hover,.sidebar a.active{color:var(--sky);background:#304768}.overlay{position:fixed;z-index:4;inset:0;display:none;background:rgba(10,27,49,.65)}.overlay.active{display:block}
+.notif-wrap{position:relative}.notif-wrap[hidden]{display:none}.notif-btn{position:relative;width:40px;height:40px;padding:0;background:#132b48;border:2px solid #071426;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}.notif-btn:hover{background:#1b3f63}.notif-btn img{width:22px;height:22px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) invert(0.85)}.notif-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;background:#ff6b6b;color:#fff;border:2px solid var(--deep-ink);font:700 10px "Silkscreen",monospace;display:flex;align-items:center;justify-content:center;line-height:1}.notif-badge[hidden]{display:none}.notif-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:420px;background:var(--ink);border:2px solid var(--deep-ink);box-shadow:4px 4px 0 var(--deep-ink);z-index:200;overflow:hidden}.notif-dropdown.open{display:flex;flex-direction:column}.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:2px solid var(--deep-ink);font:700 12px "Silkscreen",monospace;color:var(--sky)}.notif-clear{background:none;border:0;color:var(--cream);font:700 11px "Silkscreen",monospace;cursor:pointer;opacity:.7;transition:opacity .15s}.notif-clear:hover{opacity:1;color:var(--sky)}.notif-list{overflow-y:auto;flex:1}.notif-item{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid #1a3050;font-size:12px;color:var(--cream);cursor:pointer;transition:background .12s}.notif-item:hover{background:#18304d}.notif-item.unread{background:#132a47}.notif-item.unread:hover{background:#1a3458}.notif-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#1b3f63;border:2px solid var(--deep-ink);font-size:14px}.notif-body{flex:1;min-width:0}.notif-text{margin:0;line-height:1.35;color:#c4d9e6}.notif-text strong{color:var(--sky)}.notif-time{margin-top:3px;color:#5a7f9a;font-size:10px}.notif-empty{padding:24px;text-align:center;color:#5a7f9a;font-size:12px}
+.ach-modal{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(7,18,35,.78)}.ach-modal[hidden]{display:none}.ach-card-wrap{width:min(100%,780px);max-height:88vh;overflow:auto;padding:26px;background:#203f67;border:3px solid #0b1b31;box-shadow:7px 7px 0 #071426;position:relative}.ach-card-wrap .close-detail{position:absolute;top:22px;right:17px}.ach-title{color:#f1f6fa;font-size:24px;display:inline-block;padding-bottom:4px;border-bottom:2px solid var(--sky);margin-bottom:20px}.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.ach-card{padding:16px;border:2px solid #1a2a40;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.ach-icon{font-size:28px;line-height:1}.ach-name{color:#f1f6fa;font-size:13px;font-weight:700}.ach-desc{color:#8aabc4;font-size:11px;line-height:1.35}
+.close-detail{align-self:flex-end;margin:-6px -6px 12px 0;color:var(--cream);background:transparent;border:0;cursor:pointer;font:700 28px/1 "Silkscreen",monospace;padding:0 4px 2px;border-bottom:3px solid var(--sky);transition:color .15s,border-color .15s,transform .15s}.close-detail:hover{color:#ff6b6b;border-bottom-color:#ff6b6b;transform:scale(1.1)}
+.coming-soon{flex:1;display:grid;place-items:center;text-align:center;padding:40px 28px}
+.coming-soon h1{font-size:clamp(28px,5vw,48px);color:#f1f6fa;margin-bottom:16px;letter-spacing:1px}
+.coming-soon p{color:#7a9bb5;font-size:16px;max-width:420px;line-height:1.6}
+.coming-soon .icon-placeholder{font-size:64px;margin-bottom:24px;opacity:.4}
+.rankings-main{flex:1;padding:34px 22px;display:flex;justify-content:center}
+.rankings-wrap{width:100%;max-width:760px}
+.rankings-header{text-align:center;margin-bottom:22px}
+.rankings-header h1{color:#f1f6fa;font-size:clamp(24px,4vw,34px);letter-spacing:1px;border-bottom:3px solid var(--sky);display:inline-block;padding-bottom:8px}
+.rankings-header p{color:#7a9bb5;font-size:13px;margin-top:12px}
+.period-tabs{display:flex;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.period-tab{padding:9px 16px;color:var(--cream);background:#132b48;border:2px solid var(--deep-ink);cursor:pointer;font:700 12px "Silkscreen",monospace;transition:background .15s,color .15s}
+.period-tab:hover{background:#1b3f63}
+.period-tab.active{background:var(--sky);color:var(--deep-ink)}
+.rankings-status{text-align:center;color:var(--sky);font-size:12px;margin-bottom:14px;min-height:16px}
+.rankings-list{display:flex;flex-direction:column;gap:8px}
+.rank-row{display:flex;align-items:center;gap:14px;padding:12px 14px;background:#173452;border:2px solid var(--deep-ink)}
+.rank-row.rank-me{outline:2px solid var(--sky);outline-offset:2px;background:#1d3f63}
+.rank-no{width:34px;color:var(--cream);font-size:13px;font-weight:700;text-align:center}
+.rank-no.rank-gold{color:#ffd24d}.rank-no.rank-silver{color:#c0c8d4}.rank-no.rank-bronze{color:#d8905a}
+.rank-avatar{position:relative;width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid var(--deep-ink);background:#304768;color:var(--sky);font-weight:700;font-size:16px;overflow:hidden}
+.rank-avatar-initial{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.rank-avatar-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.rank-name{flex:1;color:var(--cream);font-weight:700;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-level{color:#8bc7ff;font-size:12px;white-space:nowrap}
+.rank-xp{color:#ffd24d;font-weight:700;font-size:13px;white-space:nowrap}
+.rankings-empty{text-align:center;padding:26px 16px;color:#7a9bb5;background:#132b48;border:2px solid var(--deep-ink);font-size:13px}
+.my-rank{margin-top:18px;text-align:center;color:var(--cream);background:#203f67;border:2px solid var(--deep-ink);padding:12px;font-size:13px;line-height:1.6}
+.refresh-wrap{text-align:center;margin-top:18px}
+.refresh-btn{padding:8px 14px;color:var(--deep-ink);background:var(--orange);border:2px solid var(--deep-ink);cursor:pointer;font:700 11px "Silkscreen",monospace}
+@media(max-width:520px){.rank-level{display:none}.rank-avatar{width:30px;height:30px}.rank-row{gap:10px;padding:10px 10px}}
+.site-footer{text-align:center;padding:24px 20px;border-top:2px solid var(--deep-ink);color:#5a7f9a;font-size:12px;background:var(--ink)}
+.toast-popup{position:fixed;bottom:24px;right:24px;z-index:1000;padding:14px 20px;background:#102b49;color:var(--sky);border:3px solid #0b1b31;box-shadow:5px 5px 0 #071426;font:700 13px "Silkscreen",monospace;opacity:0;visibility:hidden;transform:translateY(15px);transition:opacity .4s,transform .4s,visibility .4s;pointer-events:none}.toast-popup.show{opacity:1;visibility:visible;transform:translateY(0)}
+@media(max-width:900px){.nav-links{display:none}.profile-overview{min-width:auto}.menu-btn{display:block}.right-section{gap:10px}.qp{display:block}}
+@media(max-width:600px){.navbar{min-height:64px;gap:8px;padding:8px 12px}.profile-avatar{width:38px;height:38px}.profile-info{display:none}.right-section{gap:7px}.qp{padding:8px 7px;font-size:11px;white-space:nowrap}.signin-btn{padding:8px 9px;font-size:12px}.user-avatar{width:34px;height:34px;font-size:15px}}
+*{scrollbar-width:thin;scrollbar-color:rgba(119,207,239,.45) transparent}
+*::-webkit-scrollbar{width:6px;height:6px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(119,207,239,.45);border-radius:3px}
+*::-webkit-scrollbar-thumb:hover{background:rgba(119,207,239,.7)}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+  <a href="main.html">Home</a>
+  <a href="quests.html">Quests</a>
+  <a href="world.html">World</a>
+  <a href="rankings.html" class="active">Rankings</a>
+  <a href="store.html">Store</a>
+</div>
+<nav class="navbar">
+  <div class="nav-left">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">&#9776;</button>
+    <div class="profile-overview" id="profileOverview">
+      <div class="profile-avatar" id="navAvatar"></div>
+      <div class="profile-info">
+        <div class="username" id="navUsername">GUEST</div>
+        <div class="level" id="navTitle">Adventurer</div>
+        <div class="xp-row">
+          <div class="xp-bar"><div class="xp-fill" id="navXpFill" style="width:0%"></div></div>
+          <span class="level-badge" id="navLevel">LV 0</span>
+        </div>
+      </div>
+      <div class="streak-badge inactive" id="navStreak">
+        <img src="Icons/fire.jfif" alt="Streak">
+        <span id="navStreakCount">0</span>
+      </div>
+      <div class="left-dropdown" id="leftProfileDropdown">
+        <a href="#" class="dropdown-item" id="achBtn">&#127942; Achievements</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="main.html">Home</a>
+    <a href="quests.html">Quests</a>
+    <a href="world.html">World</a>
+    <a class="active" href="rankings.html">Rankings</a>
+    <a href="store.html">Store</a>
+  </div>
+  <div class="right-section">
+    <div class="notif-wrap" id="notifWrap" hidden>
+      <button class="notif-btn" id="notifBtn" type="button" title="Notifications">
+        <img src="Icons/bells.jfif" alt="Notifications">
+        <span class="notif-badge" id="notifBadge" hidden>0</span>
+      </button>
+      <div class="notif-dropdown" id="notifDropdown">
+        <div class="notif-header"><span>NOTIFICATIONS</span><button class="notif-clear" id="notifClearAll" type="button">CLEAR ALL</button></div>
+        <div class="notif-list" id="notifList"><div class="notif-empty">No notifications yet.</div></div>
+      </div>
+    </div>
+    <div class="qp" id="qpBalance" hidden>&#9679; 0 QC</div>
+    <div class="profile-dropdown-wrap" id="profileDropdownWrap" hidden>
+      <button class="user-avatar" id="signoutBtn" type="button" title="Profile"></button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="settings.html" class="dropdown-item" id="dropdownSettings">&#9881; Settings</a>
+        <a href="owner.html" class="dropdown-item" id="dropdownOwner" style="display:none">&#9873; Owner Panel</a>
+        <a href="admin.html" class="dropdown-item" id="dropdownAdmin" style="display:none">&#9876; Admin Dashboard</a>
+        <a href="moderator.html" class="dropdown-item" id="dropdownModerator" style="display:none">&#9876; Moderator Panel</a>
+        <button class="dropdown-item dropdown-danger" id="dropdownLogout">&#10005; Log Out</button>
+      </div>
+    </div>
+    <button class="signin-btn" id="signinBtn" type="button">Sign In</button>
+  </div>
+</nav>
+
+<main class="rankings-main">
+  <div class="rankings-wrap">
+    <div class="rankings-header">
+      <h1>&#127942; RANKINGS</h1>
+      <p>Top adventurers by XP earned in each period. Complete quests to climb the board!</p>
+    </div>
+    <div class="period-tabs" id="periodTabs">
+      <button class="period-tab active" data-period="daily" type="button">DAILY</button>
+      <button class="period-tab" data-period="weekly" type="button">WEEKLY</button>
+      <button class="period-tab" data-period="monthly" type="button">MONTHLY</button>
+      <button class="period-tab" data-period="yearly" type="button">YEARLY</button>
+    </div>
+    <div class="rankings-status" id="rankingsStatus">Loading adventurers...</div>
+    <div class="rankings-list" id="rankingsList"></div>
+    <div class="my-rank" id="myRankRow" hidden></div>
+    <div class="refresh-wrap">
+      <button class="refresh-btn" id="rankingsRefreshBtn" type="button">REFRESH</button>
+    </div>
+  </div>
+</main>
+
+<div class="ach-modal" id="achModal" hidden>
+  <div class="ach-card-wrap">
+    <button class="close-detail" id="achCloseBtn" type="button" aria-label="Close modal">&#10005;</button>
+    <h2 class="ach-title">ACHIEVEMENTS</h2>
+    <div class="ach-grid" id="achievementGrid"></div>
+  </div>
+</div>
+
+<div class="toast-popup" id="toastPopup"></div>
+
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/notifications.js"></script>
+<script type="module" src="js/achievements.js"></script>
+<script type="module" src="js/streak.js"></script>
+<script type="module" src="js/rankings.js"></script>
+<script>
+const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn');
+if(menuBtn)menuBtn.onclick=()=>{sidebar.classList.toggle('active');overlay.classList.toggle('active')};
+if(overlay)overlay.onclick=()=>{sidebar.classList.remove('active');overlay.classList.remove('active')};
+</script>
+<script src="js/nocopy.js"></script>
+
+<footer class="site-footer">Icons and art by leovolpozzz</footer>
+</body>
+</html>

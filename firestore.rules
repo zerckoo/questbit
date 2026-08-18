@@ -1,0 +1,211 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===========================
+    // HELPER FUNCTIONS
+    // ===========================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasRole(minRole) {
+      let roleHierarchy = {
+        "player": 1,
+        "subscribed": 2,
+        "paid": 2,
+        "moderator": 3,
+        "admin": 4,
+        "special_admin": 5,
+        "owner": 6
+      };
+      let userData = getUserData();
+      let userRole = userData.role ?? "player";
+      if (roleHierarchy[userRole] >= roleHierarchy[minRole]) return true;
+      // Also check roles array for multi-role users
+      let userRoles = userData.roles ?? [];
+      for (let i = 0; i < userRoles.size(); i++) {
+        if (roleHierarchy[userRoles[i]] >= roleHierarchy[minRole]) return true;
+      }
+      return false;
+    }
+
+    // Strict admin check (no signed-in fallback) for site settings
+    function isAdmin() {
+      let userData = getUserData();
+      let role = userData.role ?? "player";
+      if (role == "admin" || role == "special_admin" || role == "owner") return true;
+      let roles = userData.roles ?? [];
+      for (let i = 0; i < roles.size(); i++) {
+        if (roles[i] == "admin" || roles[i] == "special_admin" || roles[i] == "owner") return true;
+      }
+      return false;
+    }
+
+    // Fields that ONLY admins/owners can write on a user document
+    function isRoleProtectedField(field) {
+      return field == "role"
+          || field == "roles"
+          || field == "coins"
+          || field == "xp"
+          || field == "level"
+          || field == "xpInLevel"
+          || field == "totalCoinsEarned"
+          || field == "maxDailyCompletions"
+          || field == "dailyCompletions"
+          || field == "lastCompletionDate"
+          || field == "questsCompleted";
+    }
+
+    // Fields that moderators+ can write on a user document (user management)
+    function isModManagedField(field) {
+      return field == "accountStatus"
+          || field == "warnings"
+          || field == "flaggedUsername"
+          || field == "flagReason";
+    }
+
+    // ===========================
+    // USERS
+    // ===========================
+
+    match /users/{userId} {
+      // Anyone signed in can read user profiles (for display purposes)
+      allow read: if isSignedIn();
+
+      // Users can create their own doc on first sign-up
+      allow create: if isOwner(userId);
+
+      // Users can update their own doc, but NOT protected fields.
+      // Reward fields are allowed on their OWN doc so instant rewards can be
+      // granted on submission; every claim is queued for moderator review and
+      // reversed if rejected.
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly(["username", "displayName", "photoURL", "title", "lastActive", "lastStreakDate", "streakDays", "streakActiveToday", "lastUsernameChange", "lastDisplayNameChange", "xp", "coins", "level", "xpInLevel", "totalCoinsEarned", "questsCompleted", "maxDailyCompletions", "dailyCompletions", "lastCompletionDate", "dailyXP", "dailyResetDate", "weeklyXP", "weeklyResetDate", "monthlyXP", "monthlyResetDate", "yearlyXP", "yearlyResetDate"]);
+
+      // Moderators+ can update user management fields (accountStatus, warnings, flags)
+      allow update: if hasRole("moderator")
+        && request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly(["accountStatus", "warnings", "flaggedUsername", "flagReason"]);
+
+      // Moderators+ can update reward fields when approving quests
+      allow update: if hasRole("moderator")
+        && request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasOnly(["xp", "coins", "level", "xpInLevel", "totalCoinsEarned", "questsCompleted", "maxDailyCompletions", "dailyCompletions", "lastCompletionDate", "dailyXP", "dailyResetDate", "weeklyXP", "weeklyResetDate", "monthlyXP", "monthlyResetDate", "yearlyXP", "yearlyResetDate"]);
+
+      // Only admins+ can update protected fields (role, coins, xp, etc.)
+      allow update: if hasRole("admin");
+
+      // Only owners can delete (no one really needs to delete)
+      allow delete: if false;
+
+      // Sub-collection: userQuests
+      match /userQuests/{questId} {
+        // User can read their own quests; moderators+ can read any user's quests
+        allow read: if isOwner(userId) || hasRole("moderator");
+
+        // User can create/write their own quest entries
+        allow create: if isOwner(userId);
+
+        // User can update their own quest entries (accept, save, cancel, submit proof)
+        // But cannot change certain fields once set
+        allow update: if isOwner(userId);
+
+        // User can delete their own saved/cancelled quests
+        allow delete: if isOwner(userId);
+      }
+
+      // Sub-collection: notifications
+      match /notifications/{notifId} {
+        allow read: if isOwner(userId);
+        allow create: if isSignedIn(); // any signed-in client can create (moderator/instant-reward notices)
+        allow update: if isOwner(userId); // mark as read
+        allow delete: if isOwner(userId); // clear all
+      }
+
+      // Sub-collection: achievements
+      match /achievements/{achievementId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if false; // achievements are immutable once earned
+        allow delete: if false;
+      }
+    }
+
+    // ===========================
+    // QUESTS (Admin-created content)
+    // ===========================
+
+    match /quests/{questId} {
+      // Anyone signed in can read published quests
+      allow read: if isSignedIn();
+
+      // Only special admins+ and owners can create quests
+      allow create: if hasRole("special_admin");
+
+      // Only special admins+ and owners can update quests
+      allow update: if hasRole("special_admin");
+
+      // Only owners can delete quests
+      allow delete: if hasRole("owner");
+    }
+
+    // ===========================
+    // MODERATOR QUEUE
+    // ===========================
+
+    match /modQueue/{entryId} {
+      // Moderators+ can read the queue
+      allow read: if hasRole("moderator");
+
+      // Anyone signed in can create (submit proof) - no role check needed
+      allow create: if isSignedIn();
+
+      // Only moderators+ can approve/reject (update status)
+      allow update: if hasRole("moderator");
+
+      // Only moderators+ can delete resolved entries
+      allow delete: if hasRole("moderator");
+    }
+
+    // ===========================
+    // MODERATOR ACTIVITY LOG
+    // ===========================
+
+    match /modActivityLog/{logId} {
+      // Moderators+ can read the log
+      allow read: if hasRole("moderator");
+
+      // Only moderators+ can write log entries
+      allow create: if hasRole("moderator");
+
+      // Log entries are immutable
+      allow update, delete: if false;
+    }
+
+    // ===========================
+    // SITE SETTINGS (Admin-managed)
+    // ===========================
+
+    match /settings/{settingId} {
+      // Any signed-in user can read site settings (e.g. feature toggles)
+      allow read: if isSignedIn();
+
+      // Only admins+ can change site settings
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,35 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Roles helper: a user can delete proof images if they uploaded them
+    // (self-cleanup) or if they are moderator+ (manual review cleanup).
+    function isModeratorOrAbove() {
+      let role = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      let roles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+      let hierarchy = {player:1, subscribed:2, paid:2, moderator:3, admin:4, special_admin:5, owner:6};
+      if (hierarchy[role] >= 3) return true;
+      if (roles != null) {
+        for (let r in roles) {
+          if (hierarchy[roles[r]] >= 3) return true;
+        }
+      }
+      return false;
+    }
+
+    // Allow users to upload proof images to their quest folder
+    match /proofs/{userId}_{questId}_{timestamp} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+        && request.resource.size < 5 * 1024 * 1024 // Max 5MB
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null
+        && (request.auth.uid == userId || isModeratorOrAbove());
+    }
+    
+    // Default deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
