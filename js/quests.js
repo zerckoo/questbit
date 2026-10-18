@@ -110,7 +110,14 @@ window.checkFirebaseStatus = async function() {
 };
 
 function getQuestImage(quest) {
-  return quest.imageUrl || quest.image || quest.imageLink || 'Icons/Tree.png';
+  const candidate = quest.imageUrl || quest.image || quest.imageLink || 'Icons/Tree.png';
+  try {
+    const url = new URL(candidate, window.location.href);
+    if (url.protocol === 'https:' || (url.protocol === 'http:' && url.origin === window.location.origin)) {
+      return url.href;
+    }
+  } catch (error) {}
+  return 'Icons/Tree.png';
 }
 
 // Bottom-Right Toast Notification
@@ -167,7 +174,8 @@ async function loadPublicQuests() {
     }
 
     const questsRef = collection(db, 'quests');
-    publicQuestsUnsubscribe = onSnapshot(questsRef, (snapshot) => {
+    const publishedQuests = query(questsRef, where('isPublished', '==', true));
+    publicQuestsUnsubscribe = onSnapshot(publishedQuests, (snapshot) => {
       if (snapshot.empty) {
         questListContainer.innerHTML = '<div class="empty-collection">No quests available at the moment.</div>';
         allQuests = [];
@@ -222,17 +230,17 @@ window.applyQuestFilters = function() {
     const isSaved = savedQuestIds.has(quest.id);
     const starBadge = isSaved ? '<img class="saved-star-badge" src="Icons/Star.png" alt="Saved">' : '';
     html += `
-      <div class="quest-list-item" onclick="openQuestDetailModal('${quest.id}')">
+      <div class="quest-list-item" data-quest-id="${encodeURIComponent(quest.id)}">
         ${starBadge}
-        <img class="quest-list-image" src="${getQuestImage(quest)}" alt="Quest">
-        <div class="quest-list-title">${quest.title || 'Untitled Quest'}</div>
-        <div class="quest-list-summary">${quest.description || 'No description.'}</div>
-        <div class="quest-list-meta">${(quest.effort || quest.difficulty || 'medium').toUpperCase()} &middot; +${quest.finalXP || quest.xp || 0} XP</div>
+        <img class="quest-list-image" src="${escHtml(getQuestImage(quest))}" alt="Quest">
+        <div class="quest-list-title">${escHtml(quest.title || 'Untitled Quest')}</div>
+        <div class="quest-list-summary">${escHtml(quest.description || 'No description.')}</div>
+        <div class="quest-list-meta">${escHtml((quest.effort || quest.difficulty || 'medium').toUpperCase())} &middot; +${Number(quest.finalXP || quest.xp) || 0} XP</div>
         
         <!-- Hover Tooltip for List View -->
         <div class="quest-tooltip">
-          <strong>${quest.title}</strong><br>
-          ${quest.description || ''}
+          <strong>${escHtml(quest.title || 'Untitled Quest')}</strong><br>
+          ${escHtml(quest.description || '')}
         </div>
       </div>
     `;
@@ -240,6 +248,11 @@ window.applyQuestFilters = function() {
 
   questListContainer.innerHTML = html;
 };
+
+document.getElementById('questList')?.addEventListener('click', (event) => {
+  const item = event.target.closest('[data-quest-id]');
+  if (item) window.openQuestDetailModal(decodeURIComponent(item.dataset.questId));
+});
 
 // ==========================================
 // 2. PUBLIC QUEST DETAIL MODAL & ACTIONS
@@ -258,8 +271,7 @@ window.openQuestDetailModal = function(questId) {
   const effortLabel = (quest.effort || quest.difficulty || 'medium').charAt(0).toUpperCase() + (quest.effort || quest.difficulty || 'medium').slice(1);
   const advLabel = (quest.adventureRating || 'common').charAt(0).toUpperCase() + (quest.adventureRating || 'common').slice(1);
   const modalDesc = document.getElementById('modalDesc');
-  if (modalDesc) modalDesc.innerHTML = `<div style="margin-bottom:8px;"><strong>Effort:</strong> ${effortLabel} &middot; <strong>Rating:</strong> ${advLabel}</div>` + (quest.description || 'No description provided.');
-  document.getElementById('modalDesc').textContent = quest.description || 'No description standard provided.';
+  if (modalDesc) modalDesc.textContent = `Effort: ${effortLabel} · Rating: ${advLabel}\n${quest.description || 'No description provided.'}`;
 
   const modal = document.getElementById('questDetailModal');
   if (modal) modal.hidden = false;
@@ -504,9 +516,9 @@ window.switchJournalTab = async function(tab) {
       }
 
       html += `
-        <div class="collection-item" onclick="openMyQuestDetail('${questId}', '${tab}')">
-          <span>${index}. ${quest.title || 'Quest'}</span>
-          <span>${badgeText}</span>
+        <div class="collection-item" data-quest-id="${encodeURIComponent(questId)}" data-quest-tab="${escHtml(tab)}">
+          <span>${index}. ${escHtml(quest.title || 'Quest')}</span>
+          <span>${escHtml(badgeText)}</span>
         </div>
       `;
     });
@@ -517,6 +529,11 @@ window.switchJournalTab = async function(tab) {
     collectionList.innerHTML = '<div class="empty-collection">Failed to load quests.</div>';
   }
 };
+
+document.getElementById('collectionList')?.addEventListener('click', event => {
+  const item = event.target.closest('[data-quest-id][data-quest-tab]');
+  if (item) window.openMyQuestDetail(decodeURIComponent(item.dataset.questId), item.dataset.questTab);
+});
 
 // ==========================================
 // 4. MY QUEST SUB-DETAIL MODAL
@@ -531,6 +548,7 @@ window.openMyQuestDetail = async function(questId, currentTab) {
     if (!snap.exists()) return;
 
     const quest = snap.data();
+    window.currentJournalQuestId = questId;
 
     document.getElementById('myModalImage').src = getQuestImage(quest);
     document.getElementById('myModalTitle').textContent = quest.title || 'Quest';
@@ -538,27 +556,27 @@ window.openMyQuestDetail = async function(questId, currentTab) {
     document.getElementById('myModalBiome').textContent = `Biome: ${quest.biome || 'General'}`;
     document.getElementById('myModalCost').textContent = `Cost: ${quest.cost || quest.budget || 'Free'}`;
     
-    let descHtml = quest.description || 'No description available.';
+    let descText = quest.description || 'No description available.';
     if (currentTab === 'pending' && quest.aiReason) {
-      descHtml += `<br><br><strong style="color: #ff6b6b;">AI Note:</strong> ${quest.aiReason}`;
+      descText += `\n\nAI Note: ${quest.aiReason}`;
     }
     if (currentTab === 'pending' && quest.rejectionReason) {
-      descHtml += `<br><br><strong style="color: #ff6b6b;">Rejection Reason:</strong> ${quest.rejectionReason}`;
+      descText += `\n\nRejection Reason: ${quest.rejectionReason}`;
     }
-    document.getElementById('myModalDesc').innerHTML = descHtml;
+    document.getElementById('myModalDesc').textContent = descText;
 
     const actionsContainer = document.getElementById('myModalActions');
     actionsContainer.innerHTML = '';
 
     if (currentTab === 'active') {
       actionsContainer.innerHTML = `
-        <button class="btn-red" onclick="promptCancelQuest('${questId}')" type="button">CANCEL QUEST</button>
-        <button class="btn-green" onclick="openVerificationModal('${questId}')" type="button">COMPLETE QUEST</button>
+        <button class="btn-red" data-quest-action="cancel" type="button">CANCEL QUEST</button>
+        <button class="btn-green" data-quest-action="complete" type="button">COMPLETE QUEST</button>
       `;
     } else if (currentTab === 'saved') {
       actionsContainer.innerHTML = `
-        <button class="btn-red" onclick="promptRemoveSavedQuest('${questId}')" type="button">REMOVE</button>
-        <button class="btn-green" onclick="moveSavedToActive('${questId}')" type="button">ACCEPT QUEST</button>
+        <button class="btn-red" data-quest-action="remove" type="button">REMOVE</button>
+        <button class="btn-green" data-quest-action="accept" type="button">ACCEPT QUEST</button>
       `;
     } else if (currentTab === 'pending') {
       actionsContainer.innerHTML = `
@@ -571,6 +589,17 @@ window.openMyQuestDetail = async function(questId, currentTab) {
     console.error("Error opening quest sub-detail:", error);
   }
 };
+
+document.getElementById('myModalActions')?.addEventListener('click', event => {
+  const button = event.target.closest('[data-quest-action]');
+  if (!button) return;
+  const questId = window.currentJournalQuestId;
+  if (!questId) return;
+  if (button.dataset.questAction === 'cancel') window.promptCancelQuest(questId);
+  if (button.dataset.questAction === 'complete') window.openVerificationModal(questId);
+  if (button.dataset.questAction === 'remove') window.promptRemoveSavedQuest(questId);
+  if (button.dataset.questAction === 'accept') window.moveSavedToActive(questId);
+});
 
 window.moveSavedToActive = async function(questId) {
   const currentUser = auth.currentUser;
@@ -914,7 +943,7 @@ function fileToCompressedDataURL(file) {
           if (proofImageStorage || aiMode) {
             // Stored proof: upload to Firebase Storage (AI mode always uploads so the backend can fetch it).
             const safeName = `${currentProofQuestId || 'quest'}_${Date.now()}_${currentProofFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-            const imageRef = storageRef(storage, `proofs/${auth.currentUser.uid}_${safeName}`);
+            const imageRef = storageRef(storage, `proofs/${auth.currentUser.uid}/${safeName}`);
             const uploadedFile = await uploadBytes(imageRef, currentProofFile);
             proofData.photoUrl = await getDownloadURL(uploadedFile.ref);
             console.log("Photo proof uploaded to storage:", proofData.photoUrl);

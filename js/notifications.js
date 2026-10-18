@@ -135,19 +135,29 @@ function renderNotifList(notifications) {
     return;
   }
 
-  list.innerHTML = notifications.map(n => {
+  list.replaceChildren(...notifications.map(n => {
     const icon = ICONS[n.type] || ICONS.info;
-    const unreadClass = n.read ? '' : ' unread';
-    return `
-      <div class="notif-item${unreadClass}" data-id="${n.id}">
-        <div class="notif-icon">${icon}</div>
-        <div class="notif-body">
-          <p class="notif-text">${n.message}</p>
-          <div class="notif-time">${timeAgo(n.createdAt)}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
+    const item = document.createElement('div');
+    item.className = `notif-item${n.read ? '' : ' unread'}`;
+    item.dataset.id = n.id;
+
+    const iconElement = document.createElement('div');
+    iconElement.className = 'notif-icon';
+    iconElement.innerHTML = icon;
+
+    const body = document.createElement('div');
+    body.className = 'notif-body';
+    const message = document.createElement('p');
+    message.className = 'notif-text';
+    message.textContent = n.message || '';
+    const time = document.createElement('div');
+    time.className = 'notif-time';
+    time.textContent = timeAgo(n.createdAt);
+
+    body.append(message, time);
+    item.append(iconElement, body);
+    return item;
+  }));
 }
 
 async function refreshNotifBadge() {

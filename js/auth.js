@@ -71,6 +71,36 @@ function formatCoins(n) {
     return Number(n || 0).toLocaleString();
 }
 
+async function syncPublicProfile(userId, data) {
+    try {
+        await setDoc(doc(db, "publicProfiles", userId), {
+            username: data.username || "",
+            displayName: data.displayName || "",
+            photoURL: data.photoURL || "",
+            level: Number.isFinite(data.level) ? data.level : 0,
+            dailyXP: Number.isFinite(data.dailyXP) ? data.dailyXP : 0,
+            dailyResetDate: data.dailyResetDate || "",
+            weeklyXP: Number.isFinite(data.weeklyXP) ? data.weeklyXP : 0,
+            weeklyResetDate: data.weeklyResetDate || "",
+            monthlyXP: Number.isFinite(data.monthlyXP) ? data.monthlyXP : 0,
+            monthlyResetDate: data.monthlyResetDate || "",
+            yearlyXP: Number.isFinite(data.yearlyXP) ? data.yearlyXP : 0,
+            yearlyResetDate: data.yearlyResetDate || ""
+        });
+    } catch (error) {
+        console.error("Failed to sync public profile:", error);
+    }
+}
+
+function safePhotoUrl(value) {
+    try {
+        const url = new URL(value);
+        return url.protocol === "https:" ? url.href : "";
+    } catch (error) {
+        return "";
+    }
+}
+
 window.updateCoinDisplay = function(coins) {
     if (qpBalance) {
         qpBalance.textContent = "\u25CF " + formatCoins(coins) + " QC";
@@ -86,9 +116,10 @@ window.updateNavProfile = function(data) {
     const coinsEl = document.getElementById("navCoins");
 
     if (avatar) {
-        if (data.photoURL) {
-            avatar.style.backgroundImage = `url(${data.photoURL})`;
-            avatar.style.background = `url(${data.photoURL}) center/cover, linear-gradient(135deg, #d87850 0 38%, #f3ba63 38% 62%, #3d9a83 62%)`;
+        const photoUrl = safePhotoUrl(data.photoURL);
+        if (photoUrl) {
+            avatar.style.backgroundImage = `url("${photoUrl}")`;
+            avatar.style.background = `url("${photoUrl}") center/cover, linear-gradient(135deg, #d87850 0 38%, #f3ba63 38% 62%, #3d9a83 62%)`;
         } else {
             avatar.style.backgroundImage = '';
             avatar.style.background = 'linear-gradient(135deg, #d87850 0 38%, #f3ba63 38% 62%, #3d9a83 62%)';
@@ -118,7 +149,7 @@ window.updateNavProfile = function(data) {
     if (streakBadge) {
         streakBadge.hidden = false;
         streakCount.textContent = streakDays;
-        const isActive = data.streakActiveToday === true || data.streakActiveToday === undefined;
+        const isActive = data.streakActiveToday === true;
         streakBadge.classList.toggle("inactive", !isActive);
     }
 };
@@ -242,7 +273,8 @@ onAuthStateChanged(auth, async (user) => {
 
     if (signoutBtn) {
         signoutBtn.textContent = "";
-        signoutBtn.style.backgroundImage = `url(${user.photoURL})`;
+        const photoUrl = safePhotoUrl(user.photoURL);
+        signoutBtn.style.backgroundImage = photoUrl ? `url("${photoUrl}")` : "";
         signoutBtn.style.backgroundSize = "cover";
         signoutBtn.style.backgroundPosition = "center";
         signoutBtn.title = user.displayName;
@@ -284,6 +316,7 @@ onAuthStateChanged(auth, async (user) => {
         window.userData = { coins: 0, totalCoinsEarned: 0, xp: 0, level: 0, xpInLevel: 0, questsCompleted: 0, streakDays: 0, title: "Adventurer", photoURL: user.photoURL, displayName: user.displayName, dailyXP: 0, dailyResetDate: "", weeklyXP: 0, weeklyResetDate: "", monthlyXP: 0, monthlyResetDate: "", yearlyXP: 0, yearlyResetDate: "" };
         window.updateCoinDisplay(0);
         window.updateNavProfile(window.userData);
+        await syncPublicProfile(user.uid, window.userData);
         updateAdminLink();
         showUsernameModal();
         console.log("Auth state changed", user);
@@ -292,6 +325,7 @@ onAuthStateChanged(auth, async (user) => {
 
     const data = snapshot.data();
     window.userData = data;
+    await syncPublicProfile(user.uid, data);
     window.userRoles = data.roles || [data.role || "player"];
     window.userRole = data.role || window.getHighestRole(window.userRoles);
     window.updateCoinDisplay(data.coins || 0);
@@ -368,7 +402,7 @@ if (saveUsernameBtn) {
             return;
         }
 
-        const usersRef = collection(db, "users");
+        const usersRef = collection(db, "publicProfiles");
         const q = query(usersRef, where("username", "==", username));
         const result = await getDocs(q);
 
@@ -382,12 +416,14 @@ if (saveUsernameBtn) {
             return;
         }
 
-        await updateDoc(
-            doc(db, "users", auth.currentUser.uid),
-            {
-                username: username
-            }
-        );
+        await updateDoc(doc(db, "users", auth.currentUser.uid), {
+            username: username
+        });
+        await syncPublicProfile(auth.currentUser.uid, {
+            ...window.userData,
+            username: username
+        });
+        if (window.userData) window.userData.username = username;
 
         usernameError.textContent = "";
         hideUsernameModal();

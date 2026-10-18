@@ -41,7 +41,14 @@ function isQuestPublished(data) {
 }
 
 function getQuestImage(quest) {
-  return quest.imageUrl || quest.image || quest.imageLink || 'Icons/Tree.png';
+  const candidate = quest.imageUrl || quest.image || quest.imageLink || 'Icons/Tree.png';
+  try {
+    const url = new URL(candidate, window.location.href);
+    if (url.protocol === 'https:' || (url.protocol === 'http:' && url.origin === window.location.origin)) {
+      return url.href;
+    }
+  } catch (error) {}
+  return 'Icons/Tree.png';
 }
 
 function escHtml(s) {
@@ -92,7 +99,7 @@ async function loadFeaturedQuests() {
     }
 
     const questsRef = collection(db, 'quests');
-    const q = query(questsRef, orderBy('createdAt', 'desc'), limit(24));
+    const q = query(questsRef, where('isPublished', '==', true), orderBy('createdAt', 'desc'), limit(24));
     featuredQuestsUnsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
         featuredGrid.innerHTML = '<div class="empty-collection" style="grid-column:1/-1;padding:22px;color:#b8d0e2;background:#173452;border:2px solid var(--deep-ink);font-size:13px;text-align:center">No quests available yet.</div>';
@@ -144,8 +151,8 @@ function renderFeaturedQuests(biome) {
         <h3>${escHtml(quest.title || 'Untitled Quest')}</h3>
         <img src="${escHtml(img)}" alt="${escHtml(quest.biome || 'quest')} artwork">
         <p>${escHtml(quest.description || 'No description.')}</p>
-        <div class="quest-meta">${escHtml((quest.biome || 'GENERAL').toUpperCase())} &middot; ${(quest.effort || quest.difficulty || 'medium').toUpperCase()} &middot; +${quest.finalXP || quest.xp || 0} XP &middot; ${reward > 0 ? reward + ' Coins' : 'Free'}</div>
-        <button class="quest-accept" type="button" onclick="event.stopPropagation();window.acceptHomeQuest('${escHtml(quest.id)}')">ACCEPT QUEST &#8250;</button>
+        <div class="quest-meta">${escHtml((quest.biome || 'GENERAL').toUpperCase())} &middot; ${escHtml((quest.effort || quest.difficulty || 'medium').toUpperCase())} &middot; +${Number(quest.finalXP || quest.xp) || 0} XP &middot; ${Number(reward) > 0 ? Number(reward) + ' Coins' : 'Free'}</div>
+        <button class="quest-accept" type="button" data-quest-id="${encodeURIComponent(quest.id)}">ACCEPT QUEST &#8250;</button>
       </article>`;
   }).join("");
 }
@@ -183,7 +190,7 @@ window.openHomeQuestDetail = function(questId) {
   document.getElementById('homeModalCost').textContent = `Cost: ${quest.budget || quest.cost || 'Free'}`;
   const effortLabel = (quest.effort || quest.difficulty || 'medium').charAt(0).toUpperCase() + (quest.effort || quest.difficulty || 'medium').slice(1);
   const advLabel = (quest.adventureRating || 'common').charAt(0).toUpperCase() + (quest.adventureRating || 'common').slice(1);
-  document.getElementById('homeModalDesc').innerHTML = `<div style="margin-bottom:8px;"><strong>Effort:</strong> ${effortLabel} &middot; <strong>Rating:</strong> ${advLabel}</div>` + (quest.description || 'No description provided.');
+  document.getElementById('homeModalDesc').textContent = `Effort: ${effortLabel} · Rating: ${advLabel}\n${quest.description || 'No description provided.'}`;
 
   const acceptBtn = document.getElementById('homeAcceptQuestBtn');
   const saveBtn = document.getElementById('homeSaveQuestBtn');
@@ -234,6 +241,13 @@ document.getElementById('homeAcceptQuestBtn')?.addEventListener('click', async (
     console.error("Error accepting quest:", error);
     window.showToast('Failed to accept quest.');
   }
+});
+
+featuredGrid?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-quest-id]');
+  if (!button) return;
+  event.stopPropagation();
+  window.acceptHomeQuest(decodeURIComponent(button.dataset.questId));
 });
 
 window.showSignInRequired = function(action) {
@@ -463,7 +477,7 @@ async function loadDailyRankings() {
   if (!rankingList) return;
 
   try {
-    const usersRef = collection(db, "users");
+    const usersRef = collection(db, "publicProfiles");
     const snapshot = await getDocs(usersRef);
 
     if (snapshot.empty) {
@@ -502,7 +516,7 @@ async function loadDailyRankings() {
     rankingList.innerHTML = top10.map((user, i) => {
       const rank = String(i + 1).padStart(2, "0") + ".";
       const xpFormatted = Number(user.dailyXP).toLocaleString();
-      return `<div class="ranking-row"><span class="ranking-rank">${rank}</span><span>${(user.username || "ANON").toUpperCase()}</span><span class="ranking-xp">${xpFormatted} XP</span></div>`;
+      return `<div class="ranking-row"><span class="ranking-rank">${rank}</span><span>${escHtml((user.username || "ANON").toUpperCase())}</span><span class="ranking-xp">${xpFormatted} XP</span></div>`;
     }).join("");
 
   } catch (error) {

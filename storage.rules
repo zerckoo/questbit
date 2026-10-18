@@ -5,23 +5,19 @@ service firebase.storage {
     // (self-cleanup) or if they are moderator+ (manual review cleanup).
     function isModeratorOrAbove() {
       let role = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-      let roles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
-      let hierarchy = {player:1, subscribed:2, paid:2, moderator:3, admin:4, special_admin:5, owner:6};
-      if (hierarchy[role] >= 3) return true;
-      if (roles != null) {
-        for (let r in roles) {
-          if (hierarchy[roles[r]] >= 3) return true;
-        }
-      }
-      return false;
+      let roles = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles ?? [];
+      return role in ["moderator", "admin", "special_admin", "owner"]
+        || roles.hasAny(["moderator", "admin", "special_admin", "owner"]);
     }
 
     // Allow users to upload proof images to their quest folder
-    match /proofs/{userId}_{questId}_{timestamp} {
-      allow read: if request.auth != null;
+    match /proofs/{userId}/{fileName} {
+      allow read: if request.auth != null
+        && (request.auth.uid == userId || isModeratorOrAbove());
       allow create: if request.auth != null 
+        && request.auth.uid == userId
         && request.resource.size < 5 * 1024 * 1024 // Max 5MB
-        && request.resource.contentType.matches('image/.*');
+        && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
       allow delete: if request.auth != null
         && (request.auth.uid == userId || isModeratorOrAbove());
     }

@@ -14,41 +14,105 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isValidNewUserProfile() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          "username", "displayName", "photoURL", "role", "roles", "title",
+          "coins", "totalCoinsEarned", "xp", "level", "xpInLevel",
+          "questsCompleted", "maxDailyCompletions", "streakDays",
+          "streakActiveToday", "lastStreakDate", "lastActive", "dailyXP",
+          "dailyResetDate", "weeklyXP", "weeklyResetDate", "monthlyXP",
+          "monthlyResetDate", "yearlyXP", "yearlyResetDate", "createdAt"
+        ])
+        && data.role == "player"
+        && data.roles is list
+        && data.roles.size() == 1
+        && data.roles[0] == "player"
+        && data.coins == 0
+        && data.totalCoinsEarned == 0
+        && data.xp == 0
+        && data.level == 0
+        && data.xpInLevel == 0
+        && data.questsCompleted == 0
+        && data.maxDailyCompletions == 0
+        && data.dailyXP == 0
+        && data.weeklyXP == 0
+        && data.monthlyXP == 0
+        && data.yearlyXP == 0
+        && data.createdAt == request.time;
+    }
+
+    function isValidPublicProfile(userId) {
+      let data = request.resource.data;
+      let profile = get(/databases/$(database)/documents/users/$(userId)).data;
+      return isOwner(userId)
+        && data.keys().hasOnly([
+          "username", "displayName", "photoURL", "level",
+          "dailyXP", "dailyResetDate", "weeklyXP", "weeklyResetDate",
+          "monthlyXP", "monthlyResetDate", "yearlyXP", "yearlyResetDate"
+        ])
+        && data.username == (profile.username ?? "")
+        && data.displayName == (profile.displayName ?? "")
+        && data.photoURL == (profile.photoURL ?? "")
+        && data.level == (profile.level ?? 0)
+        && data.dailyXP == (profile.dailyXP ?? 0)
+        && data.dailyResetDate == (profile.dailyResetDate ?? "")
+        && data.weeklyXP == (profile.weeklyXP ?? 0)
+        && data.weeklyResetDate == (profile.weeklyResetDate ?? "")
+        && data.monthlyXP == (profile.monthlyXP ?? 0)
+        && data.monthlyResetDate == (profile.monthlyResetDate ?? "")
+        && data.yearlyXP == (profile.yearlyXP ?? 0)
+        && data.yearlyResetDate == (profile.yearlyResetDate ?? "");
+    }
+
+      function isValidSubmission(userId, entryId) {
+        let data = request.resource.data;
+        let questPath = /databases/$(database)/documents/users/$(userId)/userQuests/$(data.questId);
+        let quest = get(questPath).data;
+        return data.keys().hasOnly([
+          "userId", "userEmail", "questId", "questTitle", "submittedNote",
+          "proofData", "status", "instantRewarded", "submittedAt"
+        ])
+        && data.userId == userId
+        && data.questId is string
+        && data.questId.size() > 0
+        && entryId == userId + "_" + data.questId
+        && data.status == "pending_review"
+        && data.instantRewarded is bool
+        && data.submittedAt is timestamp
+        && data.submittedNote is string
+        && data.submittedNote.size() <= 5000
+        && data.proofData is map
+        && data.proofData.keys().hasOnly(["note", "photoUrl"])
+        && data.proofData.note is string
+        && data.proofData.note.size() <= 5000
+        && data.proofData.photoUrl is string
+        && data.proofData.photoUrl.size() <= 2048
+        && quest.proofSubmitted == true
+        && (quest.status == "pending" || quest.status == "completed");
+      }
+
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
     function hasRole(minRole) {
-      let roleHierarchy = {
-        "player": 1,
-        "subscribed": 2,
-        "paid": 2,
-        "moderator": 3,
-        "admin": 4,
-        "special_admin": 5,
-        "owner": 6
-      };
       let userData = getUserData();
       let userRole = userData.role ?? "player";
-      if (roleHierarchy[userRole] >= roleHierarchy[minRole]) return true;
-      // Also check roles array for multi-role users
       let userRoles = userData.roles ?? [];
-      for (let i = 0; i < userRoles.size(); i++) {
-        if (roleHierarchy[userRoles[i]] >= roleHierarchy[minRole]) return true;
-      }
-      return false;
+      return (minRole == "moderator" && (userRole in ["moderator", "admin", "special_admin", "owner"] || userRoles.hasAny(["moderator", "admin", "special_admin", "owner"])))
+        || (minRole == "admin" && (userRole in ["admin", "special_admin", "owner"] || userRoles.hasAny(["admin", "special_admin", "owner"])))
+        || (minRole == "special_admin" && (userRole in ["special_admin", "owner"] || userRoles.hasAny(["special_admin", "owner"])))
+        || (minRole == "owner" && (userRole == "owner" || userRoles.hasAny(["owner"])));
     }
 
     // Strict admin check (no signed-in fallback) for site settings
     function isAdmin() {
       let userData = getUserData();
       let role = userData.role ?? "player";
-      if (role == "admin" || role == "special_admin" || role == "owner") return true;
       let roles = userData.roles ?? [];
-      for (let i = 0; i < roles.size(); i++) {
-        if (roles[i] == "admin" || roles[i] == "special_admin" || roles[i] == "owner") return true;
-      }
-      return false;
+      return role in ["admin", "special_admin", "owner"]
+        || roles.hasAny(["admin", "special_admin", "owner"]);
     }
 
     // Fields that ONLY admins/owners can write on a user document
@@ -79,35 +143,48 @@ service cloud.firestore {
     // ===========================
 
     match /users/{userId} {
-      // Anyone signed in can read user profiles (for display purposes)
-      allow read: if isSignedIn();
+      // Private account and reward fields are available only to the user and staff.
+      allow read: if isOwner(userId) || hasRole("moderator");
 
       // Users can create their own doc on first sign-up
-      allow create: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidNewUserProfile();
 
-      // Users can update their own doc, but NOT protected fields.
-      // Reward fields are allowed on their OWN doc so instant rewards can be
-      // granted on submission; every claim is queued for moderator review and
-      // reversed if rejected.
+      // Users can update only their own non-sensitive profile and activity fields.
+      // Rewards, roles, counters, and progression must be changed by privileged code.
       allow update: if isOwner(userId)
         && request.resource.data.diff(resource.data)
             .affectedKeys()
-            .hasOnly(["username", "displayName", "photoURL", "title", "lastActive", "lastStreakDate", "streakDays", "streakActiveToday", "lastUsernameChange", "lastDisplayNameChange", "xp", "coins", "level", "xpInLevel", "totalCoinsEarned", "questsCompleted", "maxDailyCompletions", "dailyCompletions", "lastCompletionDate", "dailyXP", "dailyResetDate", "weeklyXP", "weeklyResetDate", "monthlyXP", "monthlyResetDate", "yearlyXP", "yearlyResetDate"]);
+        .hasOnly(["username", "displayName", "photoURL", "title", "lastActive", "lastStreakDate", "streakDays", "streakActiveToday", "lastUsernameChange", "lastDisplayNameChange"]);
+
+      // Username changes may debit the fixed cost, but cannot grant currency.
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["username", "coins", "totalCoinsEarned", "lastUsernameChange"])
+        && request.resource.data.username is string
+        && request.resource.data.username.matches("^[A-Za-z0-9_]{3,20}$")
+        && request.resource.data.coins == resource.data.coins - 1000
+        && request.resource.data.coins >= 0
+        && request.resource.data.totalCoinsEarned == resource.data.totalCoinsEarned
+        && request.resource.data.lastUsernameChange == request.time
+        && (!('lastUsernameChange' in resource.data)
+          || resource.data.lastUsernameChange < request.time - duration.value(14, 'd'));
 
       // Moderators+ can update user management fields (accountStatus, warnings, flags)
       allow update: if hasRole("moderator")
+        && request.auth.uid != userId
         && request.resource.data.diff(resource.data)
             .affectedKeys()
             .hasOnly(["accountStatus", "warnings", "flaggedUsername", "flagReason"]);
 
       // Moderators+ can update reward fields when approving quests
       allow update: if hasRole("moderator")
+        && request.auth.uid != userId
         && request.resource.data.diff(resource.data)
             .affectedKeys()
             .hasOnly(["xp", "coins", "level", "xpInLevel", "totalCoinsEarned", "questsCompleted", "maxDailyCompletions", "dailyCompletions", "lastCompletionDate", "dailyXP", "dailyResetDate", "weeklyXP", "weeklyResetDate", "monthlyXP", "monthlyResetDate", "yearlyXP", "yearlyResetDate"]);
 
-      // Only admins+ can update protected fields (role, coins, xp, etc.)
-      allow update: if hasRole("admin");
+      // Only owners can change roles or other unrestricted user fields.
+      allow update: if hasRole("owner");
 
       // Only owners can delete (no one really needs to delete)
       allow delete: if false;
@@ -131,7 +208,7 @@ service cloud.firestore {
       // Sub-collection: notifications
       match /notifications/{notifId} {
         allow read: if isOwner(userId);
-        allow create: if isSignedIn(); // any signed-in client can create (moderator/instant-reward notices)
+        allow create: if isOwner(userId) || hasRole("moderator");
         allow update: if isOwner(userId); // mark as read
         allow delete: if isOwner(userId); // clear all
       }
@@ -145,13 +222,20 @@ service cloud.firestore {
       }
     }
 
+    // Sanitized leaderboard/display data is maintained by a trusted function.
+    match /publicProfiles/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isValidPublicProfile(userId);
+      allow delete: if false;
+    }
+
     // ===========================
     // QUESTS (Admin-created content)
     // ===========================
 
     match /quests/{questId} {
-      // Anyone signed in can read published quests
-      allow read: if isSignedIn();
+      // Public clients must query published quests; staff can also read drafts.
+      allow read: if resource.data.isPublished == true || hasRole("special_admin");
 
       // Only special admins+ and owners can create quests
       allow create: if hasRole("special_admin");
@@ -171,14 +255,30 @@ service cloud.firestore {
       // Moderators+ can read the queue
       allow read: if hasRole("moderator");
 
-      // Anyone signed in can create (submit proof) - no role check needed
-      allow create: if isSignedIn();
+      // A submitter may create only a queue entry identifying themselves.
+      allow create: if isSignedIn()
+        && isValidSubmission(request.auth.uid, entryId);
+
+      allow update: if hasRole("moderator")
+        && request.auth.uid != resource.data.userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["status", "reviewedBy", "reviewerName", "reviewedAt", "rejectReason", "modNotes"])
+        && ((request.resource.data.reviewedBy == request.auth.uid
+          && request.resource.data.status in ["approved", "rejected"])
+          || (request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["modNotes"])
+            && resource.data.status == "pending_review"));
+
+      // Allow the original submitter to replace a rejected entry with a new
+      // valid proof submission for that same quest.
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && resource.data.status == "rejected"
+        && isValidSubmission(request.auth.uid, entryId);
 
       // Only moderators+ can approve/reject (update status)
-      allow update: if hasRole("moderator");
-
-      // Only moderators+ can delete resolved entries
-      allow delete: if hasRole("moderator");
+      allow delete: if hasRole("moderator")
+        && resource.data.status in ["approved", "rejected"];
     }
 
     // ===========================

@@ -31,7 +31,7 @@ async function loadUsers() {
   statusEl.textContent = 'Loading adventurers...';
   listEl.innerHTML = '';
   try {
-    const snapshot = await getDocs(collection(db, 'users'));
+    const snapshot = await getDocs(collection(db, 'publicProfiles'));
     allRankUsers = [];
     snapshot.forEach(docSnap => {
       const data = docSnap.data();

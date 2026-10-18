@@ -3,6 +3,7 @@ import {
     doc,
     getDoc,
     updateDoc,
+    setDoc,
     collection,
     query,
     where,
@@ -160,7 +161,7 @@ document.getElementById('changeUsernameBtn').addEventListener('click', async () 
         return;
     }
 
-    const usersRef = collection(db, 'users');
+    const usersRef = collection(db, 'publicProfiles');
     const q = query(usersRef, where('username', '==', newUsername));
     const result = await getDocs(q);
 
@@ -179,6 +180,21 @@ document.getElementById('changeUsernameBtn').addEventListener('click', async () 
             coins: coins - USERNAME_CHANGE_COST,
             totalCoinsEarned: userData.totalCoinsEarned || 0,
             lastUsernameChange: serverTimestamp()
+        });
+
+        await setDoc(doc(db, 'publicProfiles', auth.currentUser.uid), {
+            username: newUsername,
+            displayName: userData.displayName || '',
+            photoURL: userData.photoURL || '',
+            level: Number.isFinite(userData.level) ? userData.level : 0,
+            dailyXP: Number.isFinite(userData.dailyXP) ? userData.dailyXP : 0,
+            dailyResetDate: userData.dailyResetDate || '',
+            weeklyXP: Number.isFinite(userData.weeklyXP) ? userData.weeklyXP : 0,
+            weeklyResetDate: userData.weeklyResetDate || '',
+            monthlyXP: Number.isFinite(userData.monthlyXP) ? userData.monthlyXP : 0,
+            monthlyResetDate: userData.monthlyResetDate || '',
+            yearlyXP: Number.isFinite(userData.yearlyXP) ? userData.yearlyXP : 0,
+            yearlyResetDate: userData.yearlyResetDate || ''
         });
 
         document.getElementById('currentUsername').textContent = newUsername;

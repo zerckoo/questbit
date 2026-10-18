@@ -70,7 +70,10 @@ async function loadQuests() {
         console.error("Failed to load quests:", error);
         const container = document.getElementById("adminQuestsContainer");
         if (container) {
-            container.innerHTML = '<div style="padding:20px;color:#ff6b6b;background:#1b3455;border:2px solid var(--deep-ink);text-align:center;">Failed to load quests: ' + error.message + '</div>';
+            const message = document.createElement("div");
+            message.style.cssText = "padding:20px;color:#ff6b6b;background:#1b3455;border:2px solid var(--deep-ink);text-align:center;";
+            message.textContent = "Failed to load quests: " + error.message;
+            container.replaceChildren(message);
         }
     }
 }
